@@ -104,7 +104,7 @@ itachi's Blog
 <p>一个事务从开始到提交之前，所做的任何修改对他其事务是不可见的。这个级别也叫不可重复读(在同一个事务内多次读取相同范围的记录可能不一致)。</p>
 </li>
 <li>
-<p>Repeable Read(可重复读)</p>
+<p>Repetable Read(可重复读)</p>
 <p>repeable read解决了脏读的问题，保证了在<strong>同一个事务</strong>的多次读取同样记录的结果是一致的(在一次事务内)。可重复读不能解决幻读的问题，即同样的事务再次读取同样范围内的记录时，可能会产生幻行(即多次读数据可能不一样)。</p>
 </li>
 <li>
@@ -138,7 +138,7 @@ itachi's Blog
 <li>Update：InnoDB为插入一条新纪录，保存当前系统版本号为行版本号，同时保存当前系统的版本号到原来的行为行删除标识。</li>
 </ul>
 <h2 id=mysql的存储引擎>MySQL的存储引擎</h2>
-<p>InnoDB采用MVCC支持高并发，默认的隔离级别是Reoeable read，通过间隙锁来防止幻读。同时InnoDB是基于聚簇索引建立的。具体的内容阅读到后面章节再细写。</p>
+<p>InnoDB采用MVCC支持高并发，默认的隔离级别是Repetable read，通过间隙锁来防止幻读。同时InnoDB是基于聚簇索引建立的。具体的内容阅读到后面章节再细写。</p>
 </div>
 <div class=post-archive>
 <ul class=post-copyright>
@@ -224,6 +224,9 @@ itachi's Blog
 </li>
 <li>
 <a target=_blank href=https://qitablog.com/ title=奇它博客>奇它博客</a>
+</li>
+<li>
+<a target=_blank href=http://laihongquan.com/ title=Ezio>Ezio</a>
 </li>
 </ul>
 </section>
