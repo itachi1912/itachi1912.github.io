@@ -62,6 +62,10 @@ itachi's Blog
 </div>
 <div class=post-content>
 <p>第四章 Schema与数据类型优化的第二篇笔记。</p>
+<blockquote>
+<p>伟大的心胸，应该表现出这样的气概——用笑脸来迎接悲惨的厄运，用百倍的勇气来应付一切的不幸。</p>
+<p>&mdash; 鲁迅</p>
+</blockquote>
 <h2 id=2-mysql-schema设计陷阱>2. MySQL schema设计陷阱</h2>
 <h4 id=21-太多的列>2.1 太多的列</h4>
 <p>MySQL的存储引擎API工作时需要在核心服务层和存储引擎层之间通过行缓冲格式拷贝数据，然后在核心服务中将缓冲内容解码成各个列，这个转换过程代价很高。</p>
@@ -82,6 +86,97 @@ itachi's Blog
 <p>范式化缺点：范式化设计的表通常需要很多关联，这不仅代价昂贵，也可能导致索引失效。范式可能会将同属一个索引的列分散到不同的表中。</p>
 <p>反范式的schema数据都在一张表里，可以很好的避免关联。实际项目开发时经常混用范式和反范式。但这其中需要平衡更新和查询的频率来设计schema</p>
 <h2 id=4-缓存表和汇总表>4. 缓存表和汇总表</h2>
+<p>有时候提升性能的最好方法是在同一张表中保存衍生的冗余数据。</p>
+<ul>
+<li>“缓存表”来表示存储那些可以比较简单的从schema其他表获取(但是获取比较慢)数据的表(逻辑上冗余的数据)。</li>
+<li>“汇总表”表示的是使用Group By语句聚合数据的表(逻辑上不冗余)</li>
+</ul>
+<p>为什么建立汇总表：实时计算统计值是很昂贵的操作，因为要么需要扫描表中的大部分数据，要么查询语句只能在某些特定的索引上才能有效运行，而这类索引一般会对update有影响。</p>
+<p>缓存表：对优化搜索和检索查询语句很有效。这些查询语句经常需要特殊的表和索引。</p>
+<p>此外，使用缓存表和汇总表时，需要决定时实时维护数据还是定期重建。重建并不只是节省资源，也可以 保持表有极少的碎片，以及有完全顺序组织的索引。</p>
+<p>重建表时通常需要保证原表在重建过程中仍然可用，可以通过使用“影子”表来实现：完成建表之后可以通过一个原子的重命名操作来切换影子表和原表。例如，要重建my_table，可先新建my_table_new，填充好数据之后，和原表做切换：</p>
+<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-sql data-lang=sql>mysql<span style=color:#f92672>&gt;</span><span style=color:#66d9ef>drop</span> <span style=color:#66d9ef>table</span> <span style=color:#66d9ef>if</span> <span style=color:#66d9ef>exists</span> my_table_new,my_table_old;
+mysql<span style=color:#f92672>&gt;</span><span style=color:#66d9ef>create</span> <span style=color:#66d9ef>table</span> my_table_new <span style=color:#66d9ef>like</span> my_table;
+mysql<span style=color:#f92672>&gt;</span><span style=color:#66d9ef>rename</span> <span style=color:#66d9ef>table</span> my_table <span style=color:#66d9ef>to</span> my_table_old,my_table_new <span style=color:#66d9ef>to</span> my_table;
+</code></pre></div><p>这样就可以实现在下一次重建之前一致保留旧表数据，如果新表有问题，可以快速切换回滚。</p>
+<h3 id=41-物化视图>4.1 物化视图</h3>
+<p>物化视图实际上是预先计算并存储在磁盘上的表，通过各种策略来刷新和更新。不过MySQL原生并不支持物化识图，可通过第三方工具来实现支持。</p>
+<h3 id=42-计数器表>4.2 计数器表</h3>
+<p>计数器表可以单独建立一张表：</p>
+<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-sql data-lang=sql>mysql<span style=color:#f92672>&gt;</span> <span style=color:#66d9ef>create</span> <span style=color:#66d9ef>table</span> hit_counter(
+		cnt int unsigned <span style=color:#66d9ef>not</span> <span style=color:#66d9ef>null</span>	
+	)ENGIN<span style=color:#f92672>=</span>InnoDB;
+</code></pre></div><p>每次点击之后都会导致对计数器更新：</p>
+<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-sql data-lang=sql>mysql<span style=color:#f92672>&gt;</span> <span style=color:#66d9ef>update</span> hit_counter <span style=color:#66d9ef>set</span> cnt <span style=color:#f92672>=</span> cnt<span style=color:#f92672>+</span><span style=color:#ae81ff>1</span>;
+</code></pre></div><p>问题在于，对于任何想要更新的事务来说，这条记录上都有一个全局互斥锁，使得无法并发，只能串行化。可以这样做：将记录保存在多行中，每次随机更新一条记录，然后统计结果时使用sum来计算：</p>
+<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-sql data-lang=sql><span style=color:#75715e>-- 修改表
+</span><span style=color:#75715e></span>mysql<span style=color:#f92672>&gt;</span> <span style=color:#66d9ef>create</span> <span style=color:#66d9ef>table</span> hit_counter(
+    	slot tinyint unsigned <span style=color:#66d9ef>not</span> <span style=color:#66d9ef>null</span> <span style=color:#66d9ef>primary</span> <span style=color:#66d9ef>key</span>,
+		cnt int unsigned <span style=color:#66d9ef>not</span> <span style=color:#66d9ef>null</span>
+	)ENGIN<span style=color:#f92672>=</span>InnoDB;
+<span style=color:#75715e>-- 初始化时插入100条数据，然后每次更新随机一个slot来更新
+</span><span style=color:#75715e></span>mysql<span style=color:#f92672>&gt;</span> <span style=color:#66d9ef>update</span> hit_counter <span style=color:#66d9ef>set</span> cnt <span style=color:#f92672>=</span> cnt<span style=color:#f92672>+</span><span style=color:#ae81ff>1</span> <span style=color:#66d9ef>where</span> slot <span style=color:#f92672>=</span>RAND() <span style=color:#f92672>*</span> <span style=color:#ae81ff>100</span>;
+<span style=color:#75715e>-- 统计结果
+</span><span style=color:#75715e></span>mysql<span style=color:#f92672>&gt;</span><span style=color:#66d9ef>select</span> <span style=color:#66d9ef>sum</span>(cnt) <span style=color:#66d9ef>from</span> hit_counter;
+</code></pre></div><p>一个需求是每个一段时间开始一个新的计数器(每天一个)</p>
+<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-sql data-lang=sql><span style=color:#75715e>-- 1.修改表
+</span><span style=color:#75715e></span>mysql<span style=color:#f92672>&gt;</span> <span style=color:#66d9ef>create</span> <span style=color:#66d9ef>table</span> daily_hit_counter(
+    	<span style=color:#66d9ef>day</span> date <span style=color:#66d9ef>not</span> <span style=color:#66d9ef>null</span>,
+    	slot tinyint unsigned <span style=color:#66d9ef>not</span> <span style=color:#66d9ef>null</span> ,
+		cnt int unsigned <span style=color:#66d9ef>not</span> <span style=color:#66d9ef>null</span>,
+    	<span style=color:#66d9ef>primary</span> <span style=color:#66d9ef>key</span>(<span style=color:#66d9ef>day</span>,slot)
+	)ENGIN<span style=color:#f92672>=</span>InnoDB;
+<span style=color:#75715e>-- 2.不需要初始化，采用on duplicate key update来替代
+</span><span style=color:#75715e></span>mysql<span style=color:#f92672>&gt;</span><span style=color:#66d9ef>insert</span> <span style=color:#66d9ef>into</span> daily_hit_counter(<span style=color:#66d9ef>day</span>,slot,cnt)
+	<span style=color:#66d9ef>values</span>(<span style=color:#66d9ef>CURRENT_DATE</span>,RAND()<span style=color:#f92672>*</span><span style=color:#ae81ff>100</span>.<span style=color:#ae81ff>1</span>)
+	<span style=color:#66d9ef>on</span> duplicate <span style=color:#66d9ef>key</span> <span style=color:#66d9ef>update</span> cnt <span style=color:#f92672>=</span> cnt <span style=color:#f92672>+</span> <span style=color:#ae81ff>1</span>;
+<span style=color:#75715e>-- 3.避免表太大，可以合并所有结果到0号slot
+</span><span style=color:#75715e></span>mysql<span style=color:#f92672>&gt;</span> <span style=color:#66d9ef>update</span> daily_hit_counter <span style=color:#66d9ef>as</span> <span style=color:#66d9ef>c</span>
+		<span style=color:#66d9ef>inner</span> <span style=color:#66d9ef>join</span>(
+        	<span style=color:#66d9ef>select</span> <span style=color:#66d9ef>day</span>,<span style=color:#66d9ef>sum</span>(cnt) <span style=color:#66d9ef>as</span> cnt ,<span style=color:#66d9ef>min</span>(slot) <span style=color:#66d9ef>as</span> mslot
+             <span style=color:#66d9ef>from</span> daily_hit_counter
+             <span style=color:#66d9ef>group</span> <span style=color:#66d9ef>by</span> <span style=color:#66d9ef>day</span>
+        ) <span style=color:#66d9ef>as</span> x <span style=color:#66d9ef>using</span>(<span style=color:#66d9ef>day</span>)
+        <span style=color:#66d9ef>set</span> <span style=color:#66d9ef>c</span>.cnt  <span style=color:#f92672>=</span> <span style=color:#66d9ef>if</span>(<span style=color:#66d9ef>c</span>.slot <span style=color:#f92672>=</span> x.mslot,x.cnt,<span style=color:#ae81ff>0</span>)
+        <span style=color:#66d9ef>set</span> <span style=color:#66d9ef>c</span>.slot <span style=color:#f92672>=</span> <span style=color:#66d9ef>if</span>(<span style=color:#66d9ef>c</span>.slot <span style=color:#f92672>=</span> x.slot,<span style=color:#ae81ff>0</span>,x.slot);
+<span style=color:#75715e>-- 4.然后删除其他slot
+</span><span style=color:#75715e></span>mysql<span style=color:#f92672>&gt;</span> <span style=color:#66d9ef>delete</span> form daily_hit_counter <span style=color:#66d9ef>where</span> slot <span style=color:#f92672>&lt;&gt;</span><span style=color:#ae81ff>0</span> <span style=color:#66d9ef>and</span> cnt <span style=color:#f92672>=</span> <span style=color:#ae81ff>0</span>;
+</code></pre></div><blockquote>
+<p>为了提高读的速度，可以增加一些额外索引，增加冗余项，甚至创建缓存表和汇总表。这样会导致写查询的负担，也增加了额外的维护操作，但设计高性能的数据库时这是必要的技巧：<strong>更快的读，更慢的写</strong>，但是同时也增加了读操作和写操作的的开发难度。</p>
+</blockquote>
+<h2 id=5-加快alter-table操作的速度>5. 加快alter table操作的速度</h2>
+<p>MySQL执行大部分修改表操作都是用新结构创建一个空表，然后从旧表中查询出所有数据再插入新表，然后删除旧表。</p>
+<p>一般而言，大部分alter table操作将会中断MySQL的服务。对于常见的场景，能使用的技巧：</p>
+<ul>
+<li>
+<p>一种是在一台不提供服务的机器上执行alter table操作，然后和提供服务的主库做切换；</p>
+</li>
+<li>
+<p>影子拷贝：用要求的表结构创建一张表，然后通过原子更名交换两张表名实现切换</p>
+</li>
+</ul>
+<p>修改表某一列的默认值为5：</p>
+<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-sql data-lang=sql><span style=color:#75715e>-- 方法1：
+</span><span style=color:#75715e></span>mssql<span style=color:#f92672>&gt;</span><span style=color:#66d9ef>alter</span> <span style=color:#66d9ef>table</span> my_table
+		<span style=color:#66d9ef>modify</span> <span style=color:#66d9ef>column</span> colu1 tinyint(<span style=color:#ae81ff>3</span>) <span style=color:#66d9ef>not</span> <span style=color:#66d9ef>null</span> <span style=color:#66d9ef>default</span> <span style=color:#ae81ff>5</span>;
+<span style=color:#75715e>-- 方法1的sql会拷贝整个表到一张新表，只是为了修改默认值
+</span><span style=color:#75715e>-- 理论上，可以跳过新建表的过程，列的默认值存在表的.frm文件中，直接修改这个文件就行，所有的modify column都会导致表重建。会很慢。
+</span><span style=color:#75715e></span>
+<span style=color:#75715e>-- 方法2：
+</span><span style=color:#75715e></span>mysql<span style=color:#f92672>&gt;</span> <span style=color:#66d9ef>alter</span> <span style=color:#66d9ef>table</span> my_table
+		<span style=color:#66d9ef>alter</span> <span style=color:#66d9ef>column</span> colu1 <span style=color:#66d9ef>set</span> <span style=color:#66d9ef>default</span> <span style=color:#ae81ff>5</span>;
+<span style=color:#75715e>-- 这个方法会直接修改.frm文件，将很快。
+</span></code></pre></div><h2 id=6-总结>6. 总结</h2>
+<p>简单的原则：</p>
+<ul>
+<li>尽量避免过度设计</li>
+<li>使用小而简单的数据类型，除非真实数据有确切需要，否则尽可能避免null值</li>
+<li>尽量使用相同的字符串，在临时表和排序时肯恶搞导致悲观的按最大长度分配内存</li>
+<li>尽量使用整型定义标识列</li>
+<li>避免使用MySQL已经遗弃的特性，例如指定浮点数的精度，或者整数的显示宽度</li>
+<li>小心使用enum和set</li>
+<li>alter table时可以在备机上完成之后且为主库，或者影子重建方式。</li>
+</ul>
 </div>
 <div class=post-archive>
 <ul class=post-copyright>
