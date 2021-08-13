@@ -1,0 +1,479 @@
+<!doctype html><html lang=zh-cn>
+<head>
+<meta charset=utf-8>
+<meta http-equiv=x-ua-compatible content="IE=edge">
+<meta name=viewport content="width=device-width,initial-scale=1">
+<meta name=referrer content="no-referrer-when-downgrade">
+<title>&lt;设计模式>-观察者模式 | itachi's Blog</title>
+<meta property="og:title" content="<设计模式>-观察者模式 - itachi's Blog">
+<meta property="og:type" content="article">
+<meta property="article:published_time" content="2021-08-13T00:00:00+08:00">
+<meta property="article:modified_time" content="2021-08-13T00:00:00+08:00">
+<meta name=Keywords content="Blog">
+<meta name=description content="<设计模式>-观察者模式">
+<meta name=author content="阿林">
+<meta property="og:url" content="https://itachi.xyz/post/dp-observer-pattern.html">
+<link rel="shortcut icon" href=/favicon.ico type=image/x-icon>
+<link rel=stylesheet href=/css/normalize.css>
+<link rel=stylesheet href=/css/style.css>
+<script type=text/javascript src=//cdn.bootcdn.net/ajax/libs/jquery/3.4.1/jquery.min.js></script>
+</head>
+<body>
+<header id=header class=clearfix>
+<div class=container>
+<div class=col-group>
+<div class=site-name>
+<a id=logo href=https://itachi.xyz>
+itachi's Blog
+</a>
+<p class=description>昨夜梦 今辰你 明日思 | Blog about life and learning.</p>
+</div>
+<div>
+<nav id=nav-menu class=clearfix>
+<a class=current href=https://itachi.xyz>首页</a>
+<a href=https://itachi.xyz/archives/ title=归档>归档</a>
+<a href=https://itachi.xyz/about/ title=关于>关于</a>
+<a href=https://itachi.xyz/tags/ title=标签>标签</a>
+<a href=https://itachi.xyz/onenote/ title=一言>一言</a>
+</nav>
+</div>
+</div>
+</div>
+</header>
+<div id=body>
+<div class=container>
+<div class=col-group>
+<div class=col-8 id=main>
+<div class=res-cons>
+<article class=post>
+<header>
+<h1 class=post-title>&lt;设计模式>-观察者模式</h1>
+</header>
+<date class="post-meta meta-date">
+2021年8月13日
+</date>
+<div class=post-meta>
+<span>|</span>
+<span class=meta-category><a href=/categories/technology>Technology</a></span>
+</div>
+<div class=post-meta>
+<span id=busuanzi_container_page_pv>|<span id=busuanzi_value_page_pv></span><span>
+阅读</span></span>
+</div>
+<div class=post-content>
+<blockquote>
+<p>你嘴凑上来，我对你嘴说，这话就一直钻到你的心里，省得走远路，拐了弯从耳朵里进去。</p>
+<p>&ndash; &ndash; 钱钟书《围城》</p>
+</blockquote>
+<h3 id=天气监测应用简单设计和实现>天气监测应用简单设计和实现</h3>
+<h4 id=1-要求>1. 要求</h4>
+<p>建立一个应用，利用WeatherData对象获取数据，并更新公告板。</p>
+<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-java data-lang=java><span style=color:#66d9ef>public</span> <span style=color:#66d9ef>class</span> <span style=color:#a6e22e>WeatherData</span><span style=color:#f92672>{</span>
+    getTemperature<span style=color:#f92672>()</span><span style=color:#75715e>//获取温度
+</span><span style=color:#75715e></span>    getHumidity<span style=color:#f92672>()</span><span style=color:#75715e>//获取湿度
+</span><span style=color:#75715e></span>    getPressue<span style=color:#f92672>()</span><span style=color:#75715e>//获取起亚
+</span><span style=color:#75715e></span>    measurementsChanged<span style=color:#f92672>()</span><span style=color:#75715e>//气象数据更新，此方法被调用
+</span><span style=color:#75715e></span>    <span style=color:#75715e>//其他方法
+</span><span style=color:#75715e></span><span style=color:#f92672>}</span>
+</code></pre></div><h4 id=2-分析>2. 分析</h4>
+<p>需求：WeatherData对象有三个值得getter方法，当气象数据更新时，meansurementsChanged()方法会被调用，我们需要实现把三个气象数据展示到公告板。同时这个系统必须有扩展性。</p>
+<h4 id=3定义观察者模式>3.定义观察者模式</h4>
+<p><strong>观察者模式定义了对象之间的一对多依赖，这样一来，当一个对象改变状态时，他的所有依赖者都会收到通知并且自动更新</strong>。我们说这个“<strong>对象</strong>”是主题(subject)，而“<strong>多个依赖</strong>”是观察者(Observer)。观察者模式定义了一对多关系，观察者依赖于主题，只要主题一有变化，观察者就会被通知。</p>
+<h4 id=4观察者类图>4.观察者类图</h4>
+<p>主题由多个观察者订阅，观察者关注了主题</p>
+<pre><code class=language-mermaid data-lang=mermaid>classDiagram
+Subject &lt;|.. ConsreteSubject
+Observer &lt;|.. ConcreteObserver
+Observer &lt;|.. NewConcreteObserver
+
+
+Subject &lt;|-- Observer
+
+
+Subject : registerObserver()
+Subject : removeObserver()
+Subject : notifyObserver()
+
+ConsreteSubject : registerObserver()
+ConsreteSubject : removeObserver()
+ConsreteSubject : notifyObserver()
+
+
+
+Observer : update()
+ConcreteObserver : update()
+NewConcreteObserver : update()
+
+</code></pre><h4 id=5-气象站类图设计>5. 气象站类图设计</h4>
+<pre><code class=language-mermaid data-lang=mermaid>classDiagram
+Subject &lt;|.. WeatherData
+Observer &lt;|.. CurrentConditionDisplay
+DisplayElement &lt;|.. CurrentConditionDisplay
+
+
+Subject : registerObserver()
+Subject : removeObserver()
+Subject : notifyObserver()
+
+WeatherData : registerObserver()
+WeatherData : removeObserver()
+WeatherData : notifyObserver()
+WeatherData : getTemperature()
+WeatherData : getHumidity()
+WeatherData : getPressue()
+WeatherData : measurementsChanged()
+WeatherData : ArrayList observerList
+
+
+Observer : update()
+DisplayElement : display()
+
+CurrentConditionDisplay : update()
+CurrentConditionDisplay : WeatherData  weather
+CurrentConditionDisplay : display()
+</code></pre><h4 id=6实现气象站>6.实现气象站</h4>
+<h5 id=61定义接口>6.1定义接口</h5>
+<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-java data-lang=java><span style=color:#75715e>//主题接口
+</span><span style=color:#75715e></span><span style=color:#66d9ef>public</span> <span style=color:#66d9ef>interface</span> <span style=color:#a6e22e>Subject</span> <span style=color:#f92672>{</span>
+    <span style=color:#66d9ef>void</span> <span style=color:#a6e22e>registerObserver</span><span style=color:#f92672>(</span>Observer observer<span style=color:#f92672>);</span><span style=color:#75715e>//注册观察者
+</span><span style=color:#75715e></span>    <span style=color:#66d9ef>void</span> <span style=color:#a6e22e>removeObserver</span><span style=color:#f92672>(</span>Observer observer<span style=color:#f92672>);</span><span style=color:#75715e>//溢出观察者
+</span><span style=color:#75715e></span>    <span style=color:#66d9ef>void</span> <span style=color:#a6e22e>notifyObservers</span><span style=color:#f92672>();</span><span style=color:#75715e>//通知观察者
+</span><span style=color:#75715e></span><span style=color:#f92672>}</span>
+<span style=color:#75715e>//观察者接口
+</span><span style=color:#75715e></span><span style=color:#66d9ef>public</span> <span style=color:#66d9ef>interface</span> <span style=color:#a6e22e>Observer</span> <span style=color:#f92672>{</span>
+    <span style=color:#66d9ef>void</span> <span style=color:#a6e22e>update</span><span style=color:#f92672>(</span><span style=color:#66d9ef>float</span> temperature<span style=color:#f92672>,</span><span style=color:#66d9ef>float</span> humidity<span style=color:#f92672>,</span><span style=color:#66d9ef>float</span> pressure<span style=color:#f92672>);</span><span style=color:#75715e>//观察者具体的动作实现
+</span><span style=color:#75715e></span><span style=color:#f92672>}</span>
+<span style=color:#75715e>//公告接口
+</span><span style=color:#75715e></span><span style=color:#66d9ef>public</span> <span style=color:#66d9ef>interface</span> <span style=color:#a6e22e>DisplayElement</span> <span style=color:#f92672>{</span>
+    <span style=color:#66d9ef>void</span> <span style=color:#a6e22e>display</span><span style=color:#f92672>();</span><span style=color:#75715e>//用于公告展示
+</span><span style=color:#75715e></span><span style=color:#f92672>}</span>
+</code></pre></div><h5 id=62定义实现类>6.2定义实现类</h5>
+<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-java data-lang=java><span style=color:#75715e>//天气数据作为主题
+</span><span style=color:#75715e></span><span style=color:#66d9ef>public</span> <span style=color:#66d9ef>class</span> <span style=color:#a6e22e>WeatherData</span> <span style=color:#66d9ef>implements</span> Subject <span style=color:#f92672>{</span>
+    <span style=color:#66d9ef>private</span> <span style=color:#66d9ef>float</span> temperature<span style=color:#f92672>;</span>
+    <span style=color:#66d9ef>private</span> <span style=color:#66d9ef>float</span> humidity<span style=color:#f92672>;</span>
+    <span style=color:#66d9ef>private</span> <span style=color:#66d9ef>float</span> pressure<span style=color:#f92672>;</span>
+    <span style=color:#66d9ef>private</span> ArrayList<span style=color:#f92672>&lt;</span>Observer<span style=color:#f92672>&gt;</span> observers<span style=color:#f92672>;</span>
+
+    <span style=color:#66d9ef>public</span> <span style=color:#a6e22e>WeatherData</span><span style=color:#f92672>()</span> <span style=color:#f92672>{</span>
+        <span style=color:#66d9ef>this</span><span style=color:#f92672>.</span><span style=color:#a6e22e>observers</span> <span style=color:#f92672>=</span> <span style=color:#66d9ef>new</span> ArrayList<span style=color:#f92672>&lt;&gt;();</span>
+    <span style=color:#f92672>}</span>
+
+    <span style=color:#a6e22e>@Override</span>
+    <span style=color:#66d9ef>public</span> <span style=color:#66d9ef>void</span> <span style=color:#a6e22e>registerObserver</span><span style=color:#f92672>(</span>Observer observer<span style=color:#f92672>)</span> <span style=color:#f92672>{</span>
+        observers<span style=color:#f92672>.</span><span style=color:#a6e22e>add</span><span style=color:#f92672>(</span>observer<span style=color:#f92672>);</span>
+    <span style=color:#f92672>}</span>
+
+    <span style=color:#a6e22e>@Override</span>
+    <span style=color:#66d9ef>public</span> <span style=color:#66d9ef>void</span> <span style=color:#a6e22e>removeObserver</span><span style=color:#f92672>(</span>Observer observer<span style=color:#f92672>)</span> <span style=color:#f92672>{</span>
+        <span style=color:#66d9ef>int</span> i <span style=color:#f92672>=</span> observers<span style=color:#f92672>.</span><span style=color:#a6e22e>indexOf</span><span style=color:#f92672>(</span>observer<span style=color:#f92672>);</span>
+        <span style=color:#66d9ef>if</span> <span style=color:#f92672>(</span>i <span style=color:#f92672>&gt;</span> 0<span style=color:#f92672>)</span> <span style=color:#f92672>{</span>
+            observers<span style=color:#f92672>.</span><span style=color:#a6e22e>remove</span><span style=color:#f92672>(</span>observer<span style=color:#f92672>);</span>
+        <span style=color:#f92672>}</span>
+    <span style=color:#f92672>}</span>
+    <span style=color:#a6e22e>@Override</span>
+    <span style=color:#66d9ef>public</span> <span style=color:#66d9ef>void</span> <span style=color:#a6e22e>notifyObservers</span><span style=color:#f92672>()</span> <span style=color:#f92672>{</span>
+        observers<span style=color:#f92672>.</span><span style=color:#a6e22e>forEach</span><span style=color:#f92672>(</span>observer <span style=color:#f92672>-&gt;</span> <span style=color:#f92672>{</span>
+            observer<span style=color:#f92672>.</span><span style=color:#a6e22e>update</span><span style=color:#f92672>(</span>temperature<span style=color:#f92672>,</span> humidity<span style=color:#f92672>,</span> pressure<span style=color:#f92672>);</span>
+        <span style=color:#f92672>});</span>
+    <span style=color:#f92672>}</span>
+    <span style=color:#75715e>//气象数据变化被调用
+</span><span style=color:#75715e></span>    <span style=color:#66d9ef>public</span> <span style=color:#66d9ef>void</span> <span style=color:#a6e22e>measurementsChanged</span><span style=color:#f92672>()</span> <span style=color:#f92672>{</span>
+        notifyObservers<span style=color:#f92672>();</span>
+    <span style=color:#f92672>}</span>
+    <span style=color:#75715e>//模拟气象数据变化
+</span><span style=color:#75715e></span>    <span style=color:#66d9ef>public</span> <span style=color:#66d9ef>void</span> <span style=color:#a6e22e>setMeasurements</span><span style=color:#f92672>(</span><span style=color:#66d9ef>float</span> temperature<span style=color:#f92672>,</span> <span style=color:#66d9ef>float</span> humidity<span style=color:#f92672>,</span> <span style=color:#66d9ef>float</span> pressure<span style=color:#f92672>)</span> <span style=color:#f92672>{</span>
+        <span style=color:#66d9ef>this</span><span style=color:#f92672>.</span><span style=color:#a6e22e>temperature</span> <span style=color:#f92672>=</span> temperature<span style=color:#f92672>;</span>
+        <span style=color:#66d9ef>this</span><span style=color:#f92672>.</span><span style=color:#a6e22e>humidity</span> <span style=color:#f92672>=</span> humidity<span style=color:#f92672>;</span>
+        <span style=color:#66d9ef>this</span><span style=color:#f92672>.</span><span style=color:#a6e22e>pressure</span> <span style=color:#f92672>=</span> pressure<span style=color:#f92672>;</span>
+        measurementsChanged<span style=color:#f92672>();</span>
+    <span style=color:#f92672>}</span>
+<span style=color:#f92672>}</span>
+
+<span style=color:#75715e>//当前天气公告作为一个观察者
+</span><span style=color:#75715e></span><span style=color:#66d9ef>public</span> <span style=color:#66d9ef>class</span> <span style=color:#a6e22e>CurrentConditionDisplay</span> <span style=color:#66d9ef>implements</span> Observer<span style=color:#f92672>,</span> DisplayElement <span style=color:#f92672>{</span>
+    <span style=color:#66d9ef>private</span> <span style=color:#66d9ef>float</span> temperature<span style=color:#f92672>;</span>
+    <span style=color:#66d9ef>private</span> <span style=color:#66d9ef>float</span> humidity<span style=color:#f92672>;</span>
+    <span style=color:#66d9ef>private</span> <span style=color:#66d9ef>float</span> pressure<span style=color:#f92672>;</span>
+    <span style=color:#66d9ef>private</span> <span style=color:#66d9ef>final</span> Subject weatherData<span style=color:#f92672>;</span><span style=color:#75715e>//持有一个主题的引用，可以方便取消观察等操作
+</span><span style=color:#75715e></span>
+    <span style=color:#66d9ef>public</span> <span style=color:#a6e22e>CurrentConditionDisplay</span><span style=color:#f92672>(</span>Subject Subject<span style=color:#f92672>)</span> <span style=color:#f92672>{</span>
+        <span style=color:#66d9ef>this</span><span style=color:#f92672>.</span><span style=color:#a6e22e>weatherData</span> <span style=color:#f92672>=</span> Subject<span style=color:#f92672>;</span>
+        <span style=color:#66d9ef>this</span><span style=color:#f92672>.</span><span style=color:#a6e22e>weatherData</span><span style=color:#f92672>.</span><span style=color:#a6e22e>registerObserver</span><span style=color:#f92672>(</span><span style=color:#66d9ef>this</span><span style=color:#f92672>);</span><span style=color:#75715e>//注册成为观察者
+</span><span style=color:#75715e></span>    <span style=color:#f92672>}</span>
+    <span style=color:#66d9ef>public</span> <span style=color:#66d9ef>void</span> <span style=color:#a6e22e>cancelObserve</span><span style=color:#f92672>()</span> <span style=color:#f92672>{</span>
+        <span style=color:#66d9ef>this</span><span style=color:#f92672>.</span><span style=color:#a6e22e>weatherData</span><span style=color:#f92672>.</span><span style=color:#a6e22e>removeObserver</span><span style=color:#f92672>(</span><span style=color:#66d9ef>this</span><span style=color:#f92672>);</span><span style=color:#75715e>//取消观察
+</span><span style=color:#75715e></span>    <span style=color:#f92672>}</span>
+    <span style=color:#a6e22e>@Override</span>
+    <span style=color:#66d9ef>public</span> <span style=color:#66d9ef>void</span> <span style=color:#a6e22e>display</span><span style=color:#f92672>()</span> <span style=color:#f92672>{</span>
+        System<span style=color:#f92672>.</span><span style=color:#a6e22e>out</span><span style=color:#f92672>.</span><span style=color:#a6e22e>println</span><span style=color:#f92672>(</span><span style=color:#e6db74>&#34;当前天气情况：&#34;</span> <span style=color:#f92672>+</span> <span style=color:#e6db74>&#34;温度是&#34;</span> <span style=color:#f92672>+</span>
+                temperature <span style=color:#f92672>+</span> <span style=color:#e6db74>&#34;摄氏度, 湿度是&#34;</span> <span style=color:#f92672>+</span> humidity <span style=color:#f92672>+</span> <span style=color:#e6db74>&#34;%, 气压是&#34;</span> <span style=color:#f92672>+</span> pressure<span style=color:#f92672>);</span>
+    <span style=color:#f92672>}</span>
+    <span style=color:#a6e22e>@Override</span>
+    <span style=color:#66d9ef>public</span> <span style=color:#66d9ef>void</span> <span style=color:#a6e22e>update</span><span style=color:#f92672>(</span><span style=color:#66d9ef>float</span> temperature<span style=color:#f92672>,</span> <span style=color:#66d9ef>float</span> humidity<span style=color:#f92672>,</span> <span style=color:#66d9ef>float</span> pressure<span style=color:#f92672>)</span> <span style=color:#f92672>{</span>
+        <span style=color:#66d9ef>this</span><span style=color:#f92672>.</span><span style=color:#a6e22e>temperature</span> <span style=color:#f92672>=</span> temperature<span style=color:#f92672>;</span>
+        <span style=color:#66d9ef>this</span><span style=color:#f92672>.</span><span style=color:#a6e22e>humidity</span> <span style=color:#f92672>=</span> humidity<span style=color:#f92672>;</span>
+        <span style=color:#66d9ef>this</span><span style=color:#f92672>.</span><span style=color:#a6e22e>pressure</span> <span style=color:#f92672>=</span> pressure<span style=color:#f92672>;</span>
+        display<span style=color:#f92672>();</span>
+    <span style=color:#f92672>}</span>
+<span style=color:#f92672>}</span>
+</code></pre></div><h5 id=63-气象站就可以实现了>6.3 气象站就可以实现了</h5>
+<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-java data-lang=java><span style=color:#66d9ef>public</span> <span style=color:#66d9ef>class</span> <span style=color:#a6e22e>WeatherStation</span> <span style=color:#f92672>{</span>
+    <span style=color:#66d9ef>public</span> <span style=color:#66d9ef>static</span> <span style=color:#66d9ef>void</span> <span style=color:#a6e22e>main</span><span style=color:#f92672>(</span>String<span style=color:#f92672>[]</span> args<span style=color:#f92672>)</span> <span style=color:#f92672>{</span>
+        WeatherData weatherData <span style=color:#f92672>=</span> <span style=color:#66d9ef>new</span> WeatherData<span style=color:#f92672>();</span><span style=color:#75715e>//创建主题
+</span><span style=color:#75715e></span>        CurrentConditionDisplay conditionDisplay <span style=color:#f92672>=</span> <span style=color:#66d9ef>new</span> CurrentConditionDisplay<span style=color:#f92672>(</span>weatherData<span style=color:#f92672>);</span><span style=color:#75715e>//创建一个观察者
+</span><span style=color:#75715e></span>
+        System<span style=color:#f92672>.</span><span style=color:#a6e22e>out</span><span style=color:#f92672>.</span><span style=color:#a6e22e>println</span><span style=color:#f92672>(</span><span style=color:#e6db74>&#34;气象数据改变&#34;</span><span style=color:#f92672>);</span>
+        weatherData<span style=color:#f92672>.</span><span style=color:#a6e22e>setMeasurements</span><span style=color:#f92672>(</span>28<span style=color:#f92672>,</span>65<span style=color:#f92672>,</span>30<span style=color:#f92672>.</span><span style=color:#a6e22e>4f</span><span style=color:#f92672>);</span><span style=color:#75715e>//模拟气象改变
+</span><span style=color:#75715e></span>        System<span style=color:#f92672>.</span><span style=color:#a6e22e>out</span><span style=color:#f92672>.</span><span style=color:#a6e22e>println</span><span style=color:#f92672>(</span><span style=color:#e6db74>&#34;气象数据改变&#34;</span><span style=color:#f92672>);</span>
+        weatherData<span style=color:#f92672>.</span><span style=color:#a6e22e>setMeasurements</span><span style=color:#f92672>(</span>29<span style=color:#f92672>,</span>62<span style=color:#f92672>,</span>29<span style=color:#f92672>.</span><span style=color:#a6e22e>4f</span><span style=color:#f92672>);</span><span style=color:#75715e>//模拟气象改变
+</span><span style=color:#75715e></span>        System<span style=color:#f92672>.</span><span style=color:#a6e22e>out</span><span style=color:#f92672>.</span><span style=color:#a6e22e>println</span><span style=color:#f92672>(</span><span style=color:#e6db74>&#34;气象数据改变&#34;</span><span style=color:#f92672>);</span>
+        weatherData<span style=color:#f92672>.</span><span style=color:#a6e22e>setMeasurements</span><span style=color:#f92672>(</span>26<span style=color:#f92672>,</span>75<span style=color:#f92672>,</span>28<span style=color:#f92672>.</span><span style=color:#a6e22e>4f</span><span style=color:#f92672>);</span><span style=color:#75715e>//模拟气象改变
+</span><span style=color:#75715e></span>    <span style=color:#f92672>}</span>
+<span style=color:#f92672>}</span>
+</code></pre></div><h5 id=64-运行结果>6.4 运行结果</h5>
+<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell>气象数据改变
+当前天气情况：温度是28.0摄氏度, 湿度是65.0%, 气压是30.4
+气象数据改变
+当前天气情况：温度是29.0摄氏度, 湿度是62.0%, 气压是29.4
+气象数据改变
+当前天气情况：温度是26.0摄氏度, 湿度是75.0%, 气压是28.4
+</code></pre></div><h5 id=65-易于扩展>6.5 易于扩展</h5>
+<p>此时如果需要新增一个公告栏，我们仅需新增一个Observer和DisplayElement接口的实现类，实现对应的方法即可。</p>
+<h5 id=7-小扩展>7 小扩展</h5>
+<p>事实上，对于主题状态的变化，主题可以主动把状态变化<strong>推</strong>给观察者；同样的道理，观察者意识到主题状态变化时也可以去主题那边<strong>拉</strong>取主题的状态变化</p>
+<h3 id=使用java内置的观察者模式>使用Java内置的观察者模式</h3>
+<h5 id=1被观察者>1.被观察者</h5>
+<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-java data-lang=java><span style=color:#66d9ef>public</span> <span style=color:#66d9ef>class</span> <span style=color:#a6e22e>WeatherData</span> <span style=color:#66d9ef>extends</span> Observable <span style=color:#f92672>{</span>
+    <span style=color:#66d9ef>private</span> <span style=color:#66d9ef>float</span> temperature<span style=color:#f92672>;</span>
+    <span style=color:#66d9ef>private</span> <span style=color:#66d9ef>float</span> humidity<span style=color:#f92672>;</span>
+    <span style=color:#66d9ef>private</span> <span style=color:#66d9ef>float</span> pressure<span style=color:#f92672>;</span>
+
+    <span style=color:#75715e>//气象数据变化被调用
+</span><span style=color:#75715e></span>    <span style=color:#66d9ef>public</span> <span style=color:#66d9ef>void</span> <span style=color:#a6e22e>measurementsChanged</span><span style=color:#f92672>()</span> <span style=color:#f92672>{</span>
+        setChanged<span style=color:#f92672>();</span><span style=color:#75715e>//父类的状态变化标识
+</span><span style=color:#75715e></span>        notifyObservers<span style=color:#f92672>();</span>
+    <span style=color:#f92672>}</span>
+    <span style=color:#75715e>//模拟气象数据变化
+</span><span style=color:#75715e></span>    <span style=color:#66d9ef>public</span> <span style=color:#66d9ef>void</span> <span style=color:#a6e22e>setMeasurements</span><span style=color:#f92672>(</span><span style=color:#66d9ef>float</span> temperature<span style=color:#f92672>,</span> <span style=color:#66d9ef>float</span> humidity<span style=color:#f92672>,</span> <span style=color:#66d9ef>float</span> pressure<span style=color:#f92672>)</span> <span style=color:#f92672>{</span>
+        <span style=color:#66d9ef>this</span><span style=color:#f92672>.</span><span style=color:#a6e22e>temperature</span> <span style=color:#f92672>=</span> temperature<span style=color:#f92672>;</span>
+        <span style=color:#66d9ef>this</span><span style=color:#f92672>.</span><span style=color:#a6e22e>humidity</span> <span style=color:#f92672>=</span> humidity<span style=color:#f92672>;</span>
+        <span style=color:#66d9ef>this</span><span style=color:#f92672>.</span><span style=color:#a6e22e>pressure</span> <span style=color:#f92672>=</span> pressure<span style=color:#f92672>;</span>
+        measurementsChanged<span style=color:#f92672>();</span>
+    <span style=color:#f92672>}</span>
+    <span style=color:#66d9ef>public</span> <span style=color:#66d9ef>float</span> <span style=color:#a6e22e>getTemperature</span><span style=color:#f92672>()</span> <span style=color:#f92672>{</span>
+        <span style=color:#66d9ef>return</span> temperature<span style=color:#f92672>;</span>
+    <span style=color:#f92672>}</span>
+    <span style=color:#66d9ef>public</span> <span style=color:#66d9ef>float</span> <span style=color:#a6e22e>getHumidity</span><span style=color:#f92672>()</span> <span style=color:#f92672>{</span>
+        <span style=color:#66d9ef>return</span> humidity<span style=color:#f92672>;</span>
+    <span style=color:#f92672>}</span>
+    <span style=color:#66d9ef>public</span> <span style=color:#66d9ef>float</span> <span style=color:#a6e22e>getPressure</span><span style=color:#f92672>()</span> <span style=color:#f92672>{</span>
+        <span style=color:#66d9ef>return</span> pressure<span style=color:#f92672>;</span>
+    <span style=color:#f92672>}</span>
+<span style=color:#f92672>}</span>
+</code></pre></div><h5 id=2观察者>2.观察者</h5>
+<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-java data-lang=java><span style=color:#66d9ef>public</span> <span style=color:#66d9ef>class</span> <span style=color:#a6e22e>CurrentConditionDisplay</span> <span style=color:#66d9ef>implements</span> Observer<span style=color:#f92672>,</span> DisplayElement <span style=color:#f92672>{</span>
+    <span style=color:#66d9ef>private</span> <span style=color:#66d9ef>float</span> temperature<span style=color:#f92672>;</span>
+    <span style=color:#66d9ef>private</span> <span style=color:#66d9ef>float</span> humidity<span style=color:#f92672>;</span>
+    <span style=color:#66d9ef>private</span> <span style=color:#66d9ef>float</span> pressure<span style=color:#f92672>;</span>
+
+    <span style=color:#66d9ef>public</span> <span style=color:#a6e22e>CurrentConditionDisplay</span><span style=color:#f92672>(</span>Observable observable<span style=color:#f92672>)</span> <span style=color:#f92672>{</span>
+        observable<span style=color:#f92672>.</span><span style=color:#a6e22e>addObserver</span><span style=color:#f92672>(</span><span style=color:#66d9ef>this</span><span style=color:#f92672>);</span>
+    <span style=color:#f92672>}</span>
+    <span style=color:#a6e22e>@Override</span>
+    <span style=color:#66d9ef>public</span> <span style=color:#66d9ef>void</span> <span style=color:#a6e22e>display</span><span style=color:#f92672>()</span> <span style=color:#f92672>{</span>
+        System<span style=color:#f92672>.</span><span style=color:#a6e22e>out</span><span style=color:#f92672>.</span><span style=color:#a6e22e>println</span><span style=color:#f92672>(</span><span style=color:#e6db74>&#34;当前天气情况：&#34;</span> <span style=color:#f92672>+</span> <span style=color:#e6db74>&#34;温度是&#34;</span> <span style=color:#f92672>+</span>
+                temperature <span style=color:#f92672>+</span> <span style=color:#e6db74>&#34;摄氏度, 湿度是&#34;</span> <span style=color:#f92672>+</span> humidity <span style=color:#f92672>+</span> <span style=color:#e6db74>&#34;%, 气压是&#34;</span> <span style=color:#f92672>+</span> pressure<span style=color:#f92672>);</span>
+    <span style=color:#f92672>}</span>
+    <span style=color:#a6e22e>@Override</span>
+    <span style=color:#66d9ef>public</span> <span style=color:#66d9ef>void</span> <span style=color:#a6e22e>update</span><span style=color:#f92672>(</span>Observable o<span style=color:#f92672>,</span> Object arg<span style=color:#f92672>)</span> <span style=color:#f92672>{</span>
+        <span style=color:#66d9ef>if</span> <span style=color:#f92672>(</span>o <span style=color:#66d9ef>instanceof</span> WeatherData<span style=color:#f92672>)</span> <span style=color:#f92672>{</span>
+            WeatherData weatherData <span style=color:#f92672>=</span> <span style=color:#f92672>(</span>WeatherData<span style=color:#f92672>)</span> o<span style=color:#f92672>;</span>
+            humidity <span style=color:#f92672>=</span> weatherData<span style=color:#f92672>.</span><span style=color:#a6e22e>getHumidity</span><span style=color:#f92672>();</span>
+            temperature <span style=color:#f92672>=</span> weatherData<span style=color:#f92672>.</span><span style=color:#a6e22e>getTemperature</span><span style=color:#f92672>();</span>
+            pressure <span style=color:#f92672>=</span> weatherData<span style=color:#f92672>.</span><span style=color:#a6e22e>getPressure</span><span style=color:#f92672>();</span>
+            display<span style=color:#f92672>();</span>
+        <span style=color:#f92672>}</span>
+    <span style=color:#f92672>}</span>
+<span style=color:#f92672>}</span>
+</code></pre></div><p>此处采用的拉取模式，由观察者自行获取被观察者的状态数据</p>
+<h3 id=java内置的观察者模式分析>Java内置的观察者模式分析</h3>
+<ol>
+<li>
+<h5 id=push和pull模式>Push和Pull模式</h5>
+<ol>
+<li>notifyObservers(Object arg)：带参数的notifyObservers(Object arg):这个参数Object arg 其实就是 Observer接口中的update(Observable o, Object arg)方法中的第二个参数 。就是通知观察者所改变的数据对象。简单理解就是由主题主动的push需要改变的数据对象给观察者。</li>
+<li>notifyObservers()：不带参数的方法，传递一个null数据对象给观察者，需要观察者主动到主题pull数据。</li>
+</ol>
+</li>
+<li>
+<h5 id=分析下notifyobserversobject-arg方法>分析下notifyObservers(Object arg)方法</h5>
+<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-java data-lang=java><span style=color:#66d9ef>public</span> <span style=color:#66d9ef>void</span> <span style=color:#a6e22e>notifyObservers</span><span style=color:#f92672>(</span>Object arg<span style=color:#f92672>)</span> <span style=color:#f92672>{</span>
+    Object<span style=color:#f92672>[]</span> arrLocal<span style=color:#f92672>;</span><span style=color:#75715e>//对所有的观察者进行了一个本地缓存
+</span><span style=color:#75715e></span>    <span style=color:#66d9ef>synchronized</span> <span style=color:#f92672>(</span><span style=color:#66d9ef>this</span><span style=color:#f92672>)</span> <span style=color:#f92672>{</span>
+        <span style=color:#66d9ef>if</span> <span style=color:#f92672>(!</span>changed<span style=color:#f92672>)</span><span style=color:#66d9ef>return</span><span style=color:#f92672>;</span><span style=color:#75715e>//只有changed为true才会通知
+</span><span style=color:#75715e></span>        arrLocal <span style=color:#f92672>=</span> obs<span style=color:#f92672>.</span><span style=color:#a6e22e>toArray</span><span style=color:#f92672>();</span><span style=color:#75715e>//转为对象数组
+</span><span style=color:#75715e></span>        clearChanged<span style=color:#f92672>();</span><span style=color:#75715e>//清除状态变化
+</span><span style=color:#75715e></span>    <span style=color:#f92672>}</span>
+    <span style=color:#66d9ef>for</span> <span style=color:#f92672>(</span><span style=color:#66d9ef>int</span> i <span style=color:#f92672>=</span> arrLocal<span style=color:#f92672>.</span><span style=color:#a6e22e>length</span><span style=color:#f92672>-</span>1<span style=color:#f92672>;</span> i<span style=color:#f92672>&gt;=</span>0<span style=color:#f92672>;</span> i<span style=color:#f92672>--)</span>
+        <span style=color:#f92672>((</span>Observer<span style=color:#f92672>)</span>arrLocal<span style=color:#f92672>[</span>i<span style=color:#f92672>]).</span><span style=color:#a6e22e>update</span><span style=color:#f92672>(</span><span style=color:#66d9ef>this</span><span style=color:#f92672>,</span> arg<span style=color:#f92672>);</span><span style=color:#75715e>//发起通知
+</span><span style=color:#75715e></span><span style=color:#f92672>}</span>
+</code></pre></div><p>这里采用了内部声明的对象数组的方法，在调用update方法的时候并没有上锁，不会存在线程安全隐患吗？</p>
+<ol>
+<li>arrLocal是方法内部变量，内部变量存放在栈中，是线程私有的，不会被共享。</li>
+<li>在进行集合转数组时是同步加锁的。其他线程不会访问到synchronized里的变量。</li>
+<li>arrLocal相当于对所有的观察者进行了一个缓存，可以有效防止一个线程删除一个线程添加时导致的ConcurrenModifyException和NullPointerException。</li>
+<li>利用集合转换数组的方法可以把观察者保存起来，进行独立的操作，这部分数据的更新是完全不依赖于外部变化的。所以也就不存在线程安全问题。</li>
+<li>同时也导致了源码注视中的两个问题：
+<ol>
+<li>新添加的观察者可能会错过一次通知。</li>
+<li>新删除的观察者可能会多接收一次通知。</li>
+</ol>
+</li>
+<li>这个notifyObservers(Object arg)方法没有在方法级别加锁，主要是为了避免观察者数量比较多的时候，没有获取到锁的线程都将被阻塞，性能低下。</li>
+</ol>
+</li>
+</ol>
+<h3 id=总结>总结</h3>
+<p>设计原则：</p>
+<ol>
+<li>
+<p>封装变化</p>
+<p>找出程序中可能变化的部分，把他们抽取并且封装起来，使其不影响不变的部分</p>
+</li>
+<li>
+<p>针对接口编程，而不是针对实现编程</p>
+<p>变量的声明应该是超类型(supertype)，通常是一个抽象类或者接口，如此，只要是具体实现次此超类型的类锁产生的对象都可以指定给这个变量，这也意味着，声明类时不用理会以后执行时的真正对象类型</p>
+</li>
+<li>
+<p>多使用组合，少使用继承</p>
+</li>
+<li>
+<p>为了交互对象之间的松耦合和设计而努力</p>
+<p>对象之间的互相依赖降低到最低可以让我们建立有弹性的系统，能够应付变化。改变主题或者观察者，并不会影响到另一方，只要他们之间的接口关系仍然被遵守，我们就可以轻易的扩展。</p>
+</li>
+</ol>
+</div>
+<div class=post-archive>
+<ul class=post-copyright>
+<li><strong>原文作者：</strong><a rel=author href=https://itachi.xyz>阿林</a></li>
+<li style=word-break:break-all><strong>原文链接：</strong><a href=https://itachi.xyz/post/dp-observer-pattern.html>https://itachi.xyz/post/dp-observer-pattern.html</a></li>
+<li><strong>版权声明：</strong>本作品采用<a rel=license href=https://creativecommons.org/licenses/by-nc-nd/4.0/>知识共享署名-非商业性使用-禁止演绎 4.0 国际许可协议</a>进行许可，非商业转载请注明出处（作者，原文链接），商业转载请联系作者获得授权。</li>
+</ul>
+</div>
+<br>
+<div class=post-archive>
+</div>
+<div class="post-meta meta-tags">
+<ul class=clearfix>
+<li><a href=/tags/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F>设计模式</a></li>
+</ul>
+</div>
+</article>
+<div id=gitalk-container></div>
+<link rel=stylesheet href=https://unpkg.com/gitalk/dist/gitalk.css>
+<script src=https://unpkg.com/gitalk/dist/gitalk.min.js></script>
+<script>var gitalk=new Gitalk({id:decodeURI(window.location.pathname),clientID:'30ffb17e5ccaa5f1830e',clientSecret:'67ba9ccd9df5c8f402f46b2462f09d644219c04f',repo:'itachi1912.github.io',owner:'itachi1912',admin:['itachi1912'],labels:['gitment'],perPage:25});gitalk.render('gitalk-container')</script>
+<script src=https://cdn.jsdelivr.net/npm/mermaid@8.8.2/dist/mermaid.min.js integrity="sha256-KqisLh8jVMBRjpNkOhH5W9VWs+F6x6vQksLqxs7+x9A=" crossorigin=anonymous></script>
+<script>Array.from(document.getElementsByClassName("language-mermaid")).forEach(a=>{a.parentElement.outerHTML=`<div class="mermaid">${a.innerText}</div>`})</script>
+<style>.mermaid svg{display:block;margin:auto}</style>
+</div>
+</div>
+<div id=secondary>
+<section class=widget>
+<form id=search action=https://itachi.xyz/search/ method=get accept-charset=utf-8 target=_blank _lpchecked=1>
+<input type=text name=q maxlength=20 placeholder=Search>
+<input type=hidden name=sitesearch value=https://itachi.xyz>
+<button type=submit class="submit icon-search"></button>
+</form>
+</section>
+<section class=widget>
+<h3 class=widget-title><a href=/categories/>分类</a></h3>
+<ul class=widget-list>
+<li><a href=https://itachi.xyz/categories/life/>Life (5)</a></li>
+<li><a href=https://itachi.xyz/categories/technology/>Technology (10)</a></li>
+</ul>
+</section>
+<section class=widget>
+<h3 class=widget-title>最近文章</h3>
+<ul class=widget-list>
+<li>
+<a href=https://itachi.xyz/post/dp-observer-pattern.html title="<设计模式>-观察者模式">&lt;设计模式>-观察者模式</a>
+</li>
+<li>
+<a href=https://itachi.xyz/post/dp-strategy-pattern.html title="<设计模式>-策略模式">&lt;设计模式>-策略模式</a>
+</li>
+<li>
+<a href=https://itachi.xyz/post/powerful-learning.html title=高效学习的几点建议>高效学习的几点建议</a>
+</li>
+<li>
+<a href=https://itachi.xyz/post/high-performance-mysql-4.html title=《高性能MySQL》读书笔记-4-创建高性能索引1>《高性能MySQL》读书笔记-4-创建高性能索引1</a>
+</li>
+<li>
+<a href=https://itachi.xyz/post/high-performance-mysql-3.html title=《高性能MySQL》读书笔记-3-Schema与数据类型优化2>《高性能MySQL》读书笔记-3-Schema与数据类型优化2</a>
+</li>
+<li>
+<a href=https://itachi.xyz/post/high-performance-mysql-2.html title=《高性能MySQL》读书笔记-2-Schema与数据类型优化1>《高性能MySQL》读书笔记-2-Schema与数据类型优化1</a>
+</li>
+<li>
+<a href=https://itachi.xyz/post/high-performance-mysql-1.html title=《高性能MySQL》读书笔记-1-MySQL架构与历史>《高性能MySQL》读书笔记-1-MySQL架构与历史</a>
+</li>
+<li>
+<a href=https://itachi.xyz/post/backtrace-theory.html title=回溯算法(理论篇)>回溯算法(理论篇)</a>
+</li>
+<li>
+<a href=https://itachi.xyz/post/good-habits.html title=优秀的人有优秀的习惯>优秀的人有优秀的习惯</a>
+</li>
+<li>
+<a href=https://itachi.xyz/post/configure-two-github-accounts.html title=配置多个github账号>配置多个github账号</a>
+</li>
+</ul>
+</section>
+<section class=widget>
+<h3 class=widget-title>友情链接</h3>
+<ul class=widget-list>
+<li>
+<a target=_blank href=https://www.acdiao.com title=AC的简单博客>AC的简单博客</a>
+</li>
+<li>
+<a target=_blank href=https://img.tujidu.com title=AC大佬的图床>AC大佬的图床</a>
+</li>
+<li>
+<a target=_blank href=https://blog.cetcweb.cn/ title=记录实验过程>记录实验过程</a>
+</li>
+<li>
+<a target=_blank href=https://qitablog.com/ title=奇它博客>奇它博客</a>
+</li>
+<li>
+<a target=_blank href=http://laihongquan.com/ title=Ezio>Ezio</a>
+</li>
+</ul>
+</section>
+<section class=widget>
+<h3 class=widget-title>其它</h3>
+<ul class=widget-list>
+<li><a href=https://itachi.xyz/index.xml>文章 RSS</a></li>
+</ul>
+</section>
+</div>
+</div>
+<footer id=footer>
+<div style=font-size:.7em>
+Powered by <a href=https://gohugo.io/ target=_black rel=nofollow>Hugo</a>
+and
+Theme Based On <a href=https://www.flysnow.org/ target=_black>飞雪无情</a>
+</div>
+<br>
+<div style=font-size:.7em>
+&copy; 2021 Made with <span style=color:red>❤</span> By 阿林</a>
+</div>
+</footer>
+<script type=text/javascript>window.MathJax={tex2jax:{inlineMath:[['$','$']],processEscapes:!0}}</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML" async></script>
+<a id=rocket href=#top></a>
+<script type=text/javascript src="/js/totop.js?v=0.0.0" async></script>
+<script type=text/javascript src=//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js async></script>
+</div>
+</div>
+</body>
+</html>
