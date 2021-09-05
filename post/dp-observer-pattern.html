@@ -81,7 +81,7 @@ itachi's Blog
 <p><strong>观察者模式定义了对象之间的一对多依赖，这样一来，当一个对象改变状态时，他的所有依赖者都会收到通知并且自动更新</strong>。我们说这个“<strong>对象</strong>”是主题(subject)，而“<strong>多个依赖</strong>”是观察者(Observer)。观察者模式定义了一对多关系，观察者依赖于主题，只要主题一有变化，观察者就会被通知。</p>
 <h4 id=4观察者类图>4.观察者类图</h4>
 <p>主题由多个观察者订阅，观察者关注了主题</p>
-<pre><code class=language-mermaid data-lang=mermaid>classDiagram
+<pre tabindex=0><code class=language-mermaid data-lang=mermaid>classDiagram
 Subject &lt;|.. ConsreteSubject
 Observer &lt;|.. ConcreteObserver
 Observer &lt;|.. NewConcreteObserver
@@ -105,7 +105,7 @@ ConcreteObserver : update()
 NewConcreteObserver : update()
 
 </code></pre><h4 id=5-气象站类图设计>5. 气象站类图设计</h4>
-<pre><code class=language-mermaid data-lang=mermaid>classDiagram
+<pre tabindex=0><code class=language-mermaid data-lang=mermaid>classDiagram
 Subject &lt;|.. WeatherData
 Observer &lt;|.. CurrentConditionDisplay
 DisplayElement &lt;|.. CurrentConditionDisplay
@@ -391,12 +391,15 @@ CurrentConditionDisplay : display()
 <h3 class=widget-title><a href=/categories/>分类</a></h3>
 <ul class=widget-list>
 <li><a href=https://itachi.xyz/categories/life/>Life (7)</a></li>
-<li><a href=https://itachi.xyz/categories/technology/>Technology (11)</a></li>
+<li><a href=https://itachi.xyz/categories/technology/>Technology (12)</a></li>
 </ul>
 </section>
 <section class=widget>
 <h3 class=widget-title>最近文章</h3>
 <ul class=widget-list>
+<li>
+<a href=https://itachi.xyz/post/mount-aliyun-disk-to-local.html title=把阿里云盘挂载到本地使用>把阿里云盘挂载到本地使用</a>
+</li>
 <li>
 <a href=https://itachi.xyz/post/get-offer-01.html title=剑指offer计划>剑指offer计划</a>
 </li>
@@ -423,9 +426,6 @@ CurrentConditionDisplay : display()
 </li>
 <li>
 <a href=https://itachi.xyz/post/high-performance-mysql-2.html title=《高性能MySQL》读书笔记-2-Schema与数据类型优化1>《高性能MySQL》读书笔记-2-Schema与数据类型优化1</a>
-</li>
-<li>
-<a href=https://itachi.xyz/post/high-performance-mysql-1.html title=《高性能MySQL》读书笔记-1-MySQL架构与历史>《高性能MySQL》读书笔记-1-MySQL架构与历史</a>
 </li>
 </ul>
 </section>

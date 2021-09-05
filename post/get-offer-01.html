@@ -62,6 +62,8 @@ itachi's Blog
 </li>
 <li><a href=#day03-替换空格httpsleetcode-cncomproblemsti-huan-kong-ge-lcof>Day03-<a href=https://leetcode-cn.com/problems/ti-huan-kong-ge-lcof/>替换空格</a></a></li>
 <li><a href=#day03-ii-左旋转字符串httpsleetcode-cncomproblemszuo-xuan-zhuan-zi-fu-chuan-lcof>Day03-<a href=https://leetcode-cn.com/problems/zuo-xuan-zhuan-zi-fu-chuan-lcof/>II. 左旋转字符串</a></a></li>
+<li><a href=#day04-数组中重复的数字httpsleetcode-cncomproblemsshu-zu-zhong-zhong-fu-de-shu-zi-lcof>Day04-<a href=https://leetcode-cn.com/problems/shu-zu-zhong-zhong-fu-de-shu-zi-lcof/>数组中重复的数字</a></a></li>
+<li><a href=#day04-0n-1中缺失的数字httpsleetcode-cncomproblemsque-shi-de-shu-zi-lcof>Day04-<a href=https://leetcode-cn.com/problems/que-shi-de-shu-zi-lcof/>0～n-1中缺失的数字</a></a></li>
 </ul>
 </nav>
 </div>
@@ -353,6 +355,81 @@ itachi's Blog
         <span style=color:#66d9ef>return</span> res<span style=color:#f92672>.</span><span style=color:#a6e22e>toString</span><span style=color:#f92672>();</span>
     <span style=color:#f92672>}</span>
 <span style=color:#f92672>}</span>
+</code></pre></div><h2 id=day04-数组中重复的数字httpsleetcode-cncomproblemsshu-zu-zhong-zhong-fu-de-shu-zi-lcof>Day04-<a href=https://leetcode-cn.com/problems/shu-zu-zhong-zhong-fu-de-shu-zi-lcof/>数组中重复的数字</a></h2>
+<blockquote>
+<p>在一个长度为 n 的数组 nums 里的所有数字都在 0～n-1 的范围内。数组中某些数字是重复的，但不知道有几个数字重复了，也不知道每个数字重复了几次。请找出数组中任意一个重复的数字。</p>
+</blockquote>
+<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-java data-lang=java><span style=color:#75715e>/**
+</span><span style=color:#75715e> * 法1思路：
+</span><span style=color:#75715e> * 题目中说“长度为 n 的数组 nums 里的所有数字都在 0～n-1 的范围内”，说明可以把各个元素放到改元素所表示的数组下标位置上去
+</span><span style=color:#75715e> * 如果该元素表示的数组下标上的的值和当前元素相同，那么这个元素就是重复的元素
+</span><span style=color:#75715e> * 当前元素的值 =&gt; nums[i]
+</span><span style=color:#75715e> * 该元素表示的数组下标上的的值 =&gt; nums[nums[i]]
+</span><span style=color:#75715e> 
+</span><span style=color:#75715e> * 执行用时: 0 ms
+</span><span style=color:#75715e> * 内存消耗: 46.1 MB
+</span><span style=color:#75715e> */</span>
+<span style=color:#66d9ef>class</span> <span style=color:#a6e22e>Solution</span> <span style=color:#f92672>{</span>
+    <span style=color:#66d9ef>public</span> <span style=color:#66d9ef>int</span> <span style=color:#a6e22e>findRepeatNumber</span><span style=color:#f92672>(</span><span style=color:#66d9ef>int</span><span style=color:#f92672>[]</span> nums<span style=color:#f92672>)</span> <span style=color:#f92672>{</span>
+        <span style=color:#66d9ef>for</span><span style=color:#f92672>(</span><span style=color:#66d9ef>int</span> i <span style=color:#f92672>=</span> 0<span style=color:#f92672>;</span>i<span style=color:#f92672>&lt;</span>nums<span style=color:#f92672>.</span><span style=color:#a6e22e>length</span><span style=color:#f92672>;</span>i<span style=color:#f92672>++){</span>
+            <span style=color:#66d9ef>if</span><span style=color:#f92672>(</span>nums<span style=color:#f92672>[</span>i<span style=color:#f92672>]==</span>i<span style=color:#f92672>){</span>
+                <span style=color:#66d9ef>continue</span><span style=color:#f92672>;</span>
+            <span style=color:#f92672>}</span>
+            <span style=color:#66d9ef>if</span><span style=color:#f92672>(</span>nums<span style=color:#f92672>[</span>nums<span style=color:#f92672>[</span>i<span style=color:#f92672>]]==</span>nums<span style=color:#f92672>[</span>i<span style=color:#f92672>]){</span>
+                <span style=color:#66d9ef>return</span> nums<span style=color:#f92672>[</span>i<span style=color:#f92672>];</span>
+            <span style=color:#f92672>}</span>
+            <span style=color:#66d9ef>int</span> tmp <span style=color:#f92672>=</span> nums<span style=color:#f92672>[</span>nums<span style=color:#f92672>[</span>i<span style=color:#f92672>]];</span>
+            nums<span style=color:#f92672>[</span>nums<span style=color:#f92672>[</span>i<span style=color:#f92672>]]</span> <span style=color:#f92672>=</span> nums<span style=color:#f92672>[</span>i<span style=color:#f92672>];</span>
+            nums<span style=color:#f92672>[</span>i<span style=color:#f92672>]</span> <span style=color:#f92672>=</span> tmp<span style=color:#f92672>;</span>
+            <span style=color:#f92672>--</span>i<span style=color:#f92672>;</span>
+        <span style=color:#f92672>}</span>
+        <span style=color:#66d9ef>return</span> <span style=color:#f92672>-</span>1<span style=color:#f92672>;</span>
+    <span style=color:#f92672>}</span>
+<span style=color:#f92672>}</span>
+</code></pre></div><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-java data-lang=java><span style=color:#75715e>/**
+</span><span style=color:#75715e> * 法2思路：
+</span><span style=color:#75715e> * 数组中每个元素都当做数组下标，把他放到该去的地方，如果已经有了说明重复了
+</span><span style=color:#75715e>
+</span><span style=color:#75715e> * 执行用时：1 ms, 在所有 Java 提交中击败了80.75% 的用户
+</span><span style=color:#75715e> * 内存消耗：46.1 MB, 在所有 Java 提交中击败了70.29% 的用户
+</span><span style=color:#75715e> */</span>
+<span style=color:#66d9ef>class</span> <span style=color:#a6e22e>Solution</span> <span style=color:#f92672>{</span>
+    <span style=color:#66d9ef>public</span> <span style=color:#66d9ef>int</span> <span style=color:#a6e22e>findRepeatNumber</span><span style=color:#f92672>(</span><span style=color:#66d9ef>int</span><span style=color:#f92672>[]</span> nums<span style=color:#f92672>)</span> <span style=color:#f92672>{</span>
+        <span style=color:#66d9ef>int</span><span style=color:#f92672>[]</span> tmp <span style=color:#f92672>=</span> <span style=color:#66d9ef>new</span> <span style=color:#66d9ef>int</span><span style=color:#f92672>[</span>nums<span style=color:#f92672>.</span><span style=color:#a6e22e>length</span><span style=color:#f92672>];</span>
+        <span style=color:#66d9ef>for</span><span style=color:#f92672>(</span><span style=color:#66d9ef>int</span> i<span style=color:#f92672>:</span>tmp<span style=color:#f92672>){</span>
+            tmp<span style=color:#f92672>[</span>i<span style=color:#f92672>]</span> <span style=color:#f92672>=</span> <span style=color:#f92672>-</span>1<span style=color:#f92672>;</span>
+        <span style=color:#f92672>}</span>
+        <span style=color:#66d9ef>for</span><span style=color:#f92672>(</span><span style=color:#66d9ef>int</span> i <span style=color:#f92672>:</span> nums<span style=color:#f92672>){</span>
+            <span style=color:#66d9ef>if</span><span style=color:#f92672>(</span> tmp<span style=color:#f92672>[</span>i<span style=color:#f92672>]</span> <span style=color:#f92672>==</span> i <span style=color:#f92672>){</span>
+                <span style=color:#66d9ef>return</span> i<span style=color:#f92672>;</span>
+            <span style=color:#f92672>}</span>
+            <span style=color:#75715e>//元素归位
+</span><span style=color:#75715e></span>            tmp<span style=color:#f92672>[</span>i<span style=color:#f92672>]</span> <span style=color:#f92672>=</span> i<span style=color:#f92672>;</span>
+        <span style=color:#f92672>}</span>
+        <span style=color:#66d9ef>return</span> <span style=color:#f92672>-</span>1<span style=color:#f92672>;</span>
+    <span style=color:#f92672>}</span>
+<span style=color:#f92672>}</span>
+</code></pre></div><h2 id=day04-0n-1中缺失的数字httpsleetcode-cncomproblemsque-shi-de-shu-zi-lcof>Day04-<a href=https://leetcode-cn.com/problems/que-shi-de-shu-zi-lcof/>0～n-1中缺失的数字</a></h2>
+<blockquote>
+<p>一个长度为n-1的递增排序数组中的所有数字都是唯一的，并且每个数字都在范围0～n-1之内。在范围0～n-1内的n个数字中有且只有一个数字不在该数组中，请找出这个数字。</p>
+</blockquote>
+<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-java data-lang=java><span style=color:#75715e>/**
+</span><span style=color:#75715e> * 仔细揣摩题意之后很简单的题目
+</span><span style=color:#75715e> */</span>
+<span style=color:#66d9ef>class</span> <span style=color:#a6e22e>Solution</span> <span style=color:#f92672>{</span>
+    <span style=color:#66d9ef>public</span> <span style=color:#66d9ef>int</span> <span style=color:#a6e22e>missingNumber</span><span style=color:#f92672>(</span><span style=color:#66d9ef>int</span><span style=color:#f92672>[]</span> nums<span style=color:#f92672>)</span> <span style=color:#f92672>{</span>
+        <span style=color:#75715e>//根据题目“在范围0～n-1内的n个数字中有且只有一个数字不在该数组中”,我们可推断数组必须是从0开始
+</span><span style=color:#75715e></span>        <span style=color:#75715e>//正常情况下，各个元素都应该在其下标对应的位置上，如果哪个下标对应的元素和下标不一致，则说明该元素缺失
+</span><span style=color:#75715e></span>        <span style=color:#66d9ef>for</span><span style=color:#f92672>(</span><span style=color:#66d9ef>int</span> i<span style=color:#f92672>=</span>0<span style=color:#f92672>;</span>i<span style=color:#f92672>&lt;</span>nums<span style=color:#f92672>.</span><span style=color:#a6e22e>length</span><span style=color:#f92672>;</span>i<span style=color:#f92672>++){</span>
+            <span style=color:#66d9ef>if</span><span style=color:#f92672>(</span>nums<span style=color:#f92672>[</span>i<span style=color:#f92672>]!=</span>i<span style=color:#f92672>){</span>
+                <span style=color:#66d9ef>return</span> i<span style=color:#f92672>;</span>
+            <span style=color:#f92672>}</span>
+        <span style=color:#f92672>}</span>
+        <span style=color:#75715e>//如果到这里了还是相等的，说明缺了最后一个元素
+</span><span style=color:#75715e></span>        <span style=color:#75715e>//比如{0，1，2，3，4}长度(n-1)=5，也就是说元素的范围是0-5
+</span><span style=color:#75715e></span>        <span style=color:#66d9ef>return</span> nums<span style=color:#f92672>.</span><span style=color:#a6e22e>length</span><span style=color:#f92672>;</span>
+    <span style=color:#f92672>}</span>
+<span style=color:#f92672>}</span>
 </code></pre></div>
 </div>
 <div class=post-archive>
@@ -391,12 +468,15 @@ itachi's Blog
 <h3 class=widget-title><a href=/categories/>分类</a></h3>
 <ul class=widget-list>
 <li><a href=https://itachi.xyz/categories/life/>Life (7)</a></li>
-<li><a href=https://itachi.xyz/categories/technology/>Technology (11)</a></li>
+<li><a href=https://itachi.xyz/categories/technology/>Technology (12)</a></li>
 </ul>
 </section>
 <section class=widget>
 <h3 class=widget-title>最近文章</h3>
 <ul class=widget-list>
+<li>
+<a href=https://itachi.xyz/post/mount-aliyun-disk-to-local.html title=把阿里云盘挂载到本地使用>把阿里云盘挂载到本地使用</a>
+</li>
 <li>
 <a href=https://itachi.xyz/post/get-offer-01.html title=剑指offer计划>剑指offer计划</a>
 </li>
@@ -423,9 +503,6 @@ itachi's Blog
 </li>
 <li>
 <a href=https://itachi.xyz/post/high-performance-mysql-2.html title=《高性能MySQL》读书笔记-2-Schema与数据类型优化1>《高性能MySQL》读书笔记-2-Schema与数据类型优化1</a>
-</li>
-<li>
-<a href=https://itachi.xyz/post/high-performance-mysql-1.html title=《高性能MySQL》读书笔记-1-MySQL架构与历史>《高性能MySQL》读书笔记-1-MySQL架构与历史</a>
 </li>
 </ul>
 </section>
