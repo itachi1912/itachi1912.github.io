@@ -119,13 +119,15 @@ blockquote {
     -moz-box-sizing: border-box;
     box-sizing: border-box;
     margin: 2.5em 0;
-    padding: 0 0 0 50px;
-    color: #555;
-    border-left: none;
+    padding: 10px 20px;
+    color: #145ca4;
+    border-left: 3px solid rgba(25,118,210,.7);
+    background: rgba(25,118,210,5%);
 }
 blockquote::before{
     content: "\201C";
-    display: block;
+    /*display: block;*/
+    display: none;
     font-family: times;
     font-style: normal;
     font-size: 48px;
