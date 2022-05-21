@@ -1,303 +1,101 @@
-<!doctype html><html lang=zh-cn>
-<head>
-<meta charset=utf-8>
-<meta http-equiv=x-ua-compatible content="IE=edge">
-<meta name=viewport content="width=device-width,initial-scale=1">
-<meta name=referrer content="no-referrer-when-downgrade">
-<title>自动更新VV配置文件 | itachi's Blog</title>
-<meta property="og:title" content="自动更新VV配置文件 - itachi's Blog">
-<meta property="og:type" content="article">
-<meta property="article:published_time" content="2021-09-16T00:00:00+08:00">
-<meta property="article:modified_time" content="2021-09-16T00:00:00+08:00">
-<meta name=Keywords content="Blog">
-<meta name=description content="自动更新VV配置文件">
-<meta name=author content="阿林">
-<meta property="og:url" content="https://itachi.xyz/post/auto-update-geoip-site.html">
-<link rel="shortcut icon" href=/favicon.ico type=image/x-icon>
-<link rel=stylesheet href=/css/normalize.css>
-<link rel=stylesheet href=/css/style.css>
-<script type=text/javascript src=//cdn.bootcdn.net/ajax/libs/jquery/3.4.1/jquery.min.js></script>
-</head>
-<body>
-<header id=header class=clearfix>
-<div class=container>
-<div class=col-group>
-<div class=site-name>
-<a id=logo href=https://itachi.xyz>
-itachi's Blog
-</a>
-<p class=description>昨夜梦 今辰你 明日思 | Blog about life and learning.</p>
-</div>
-<div>
-<nav id=nav-menu class=clearfix>
-<a class=current href=https://itachi.xyz>首页</a>
+<!doctype html><html lang=zh-cn><head><meta charset=utf-8><meta http-equiv=x-ua-compatible content="IE=edge"><meta name=viewport content="width=device-width,initial-scale=1"><meta name=referrer content="no-referrer-when-downgrade"><title>自动更新VV配置文件 | itachi's Blog</title><meta property="og:title" content="自动更新VV配置文件 - itachi's Blog"><meta property="og:type" content="article"><meta property="article:published_time" content="2021-09-16T00:00:00+08:00"><meta property="article:modified_time" content="2021-09-16T00:00:00+08:00"><meta name=Keywords content="Blog"><meta name=description content="自动更新VV配置文件"><meta name=author content="阿林"><meta property="og:url" content="https://itachi.xyz/post/auto-update-geoip-site.html"><link rel="shortcut icon" href=/favicon.ico type=image/x-icon><link rel=stylesheet href=/css/normalize.css><link rel=stylesheet href=/css/style.css><script type=text/javascript src=//cdn.bootcdn.net/ajax/libs/jquery/3.4.1/jquery.min.js></script></head><body><header id=header class=clearfix><div class=container><div class=col-group><div class=site-name><a id=logo href=https://itachi.xyz>itachi's Blog</a><p class=description>昨夜梦 今辰你 明日思 | Blog about life and learning.</p></div><div><nav id=nav-menu class=clearfix><a class=current href=https://itachi.xyz>首页</a>
 <a href=https://itachi.xyz/archives/ title=归档>归档</a>
 <a href=https://itachi.xyz/about/ title=关于>关于</a>
 <a href=https://itachi.xyz/tags/ title=标签>标签</a>
-<a href=https://itachi.xyz/onenote/ title=一言>一言</a>
-</nav>
-</div>
-</div>
-</div>
-</header>
-<div id=body>
-<div class=container>
-<div class=col-group>
-<div class=col-8 id=main>
-<div class=res-cons>
-<article class=post>
-<header>
-<h1 class=post-title>自动更新VV配置文件</h1>
-</header>
-<date class="post-meta meta-date">
-2021年9月16日
-</date>
-<div class=post-meta>
-<span>|</span>
-<span class=meta-category><a href=/categories/technology>Technology</a></span>
-</div>
-<div class=post-meta>
-<span id=busuanzi_container_page_pv>|<span id=busuanzi_value_page_pv></span><span>
-阅读</span></span>
-</div>
-<div class=post-content>
-<blockquote>
-<p>All lives end,all hearts are broken.Caring is not an advantage!</p>
-<p>生命终有尽头，人心终要破碎，太在意可不是什么优点！</p>
-<p>&ndash; &ndash;《神探夏洛克》</p>
-</blockquote>
-<p>分享和记录一下在Github看到的一个每天更新VV的geoip和geosite文件的<a href=https://github.com/Loyalsoldier/v2ray-rules-dat>Repository</a>，同时有几个老哥在<a href=https://github.com/Loyalsoldier/v2ray-rules-dat/issues/10#issuecomment-802638946>issues</a>里面分享了一些自动更新的实现方式，没错，我很懒不想每次都手动更新</p>
-<p>我做了个收集和整理：</p>
-<ol>
-<li>
-<h5 id=原理>原理：</h5>
-<ul>
-<li>开机自动运行 VBS 脚本</li>
-<li>VBS脚本调用ps1脚本</li>
-<li>ps1脚本实现更新</li>
-</ul>
-</li>
-<li>
-<h5 id=实现>实现：</h5>
-<p>a. 新建vbs文件:start.vbs并把该文件放到开机启动目录(win+r 输入<code>shell:startup</code>打开)</p>
-<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell>  set ws <span style=color:#f92672>=</span> WScript.CreateObject<span style=color:#f92672>(</span><span style=color:#e6db74>&#34;WScript.Shell&#34;</span><span style=color:#f92672>)</span>
-  ws.Run <span style=color:#e6db74>&#34;powershell D:\v2rayN-Core\updateIPAndsite\update.ps1&#34;</span>, <span style=color:#ae81ff>0</span>
-</code></pre></div><p>b. 新建ps1脚本:update.ps1 ,可以把该文件放到vv的目录/update/下(会自动新建一个log.log日志文件)，需要修改vv的目录</p>
-<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-powershell data-lang=powershell><span style=color:#75715e>#打印日志到文本</span>
-<span style=color:#66d9ef>function</span> Print($Str){
-	<span style=color:#e6db74>&#34;</span>$(Get-Date -Format <span style=color:#e6db74>&#39;yyyy-MM-dd HH:mm:ss&#39;</span>)<span style=color:#e6db74> $Str&#34;</span> | out-file -filepath D:\v2rayN-Core\updateIPAndsite\log.log -append -width 200
-}
-
-<span style=color:#75715e># 关闭占用指定端口进程</span>
-<span style=color:#66d9ef>function</span> Kill-Port-Process($port) {
-    $foundProcesses = netstat -ano | findstr <span style=color:#960050;background-color:#1e0010>:</span>$port
-    $activePortPattern = <span style=color:#e6db74>&#34;:$port\s.+LISTENING\s+\d+$&#34;</span>
-    $pidNumberPattern = <span style=color:#e6db74>&#34;\d+$&#34;</span>
-
-    <span style=color:#66d9ef>IF</span> ($foundProcesses | Select-String -Pattern $activePortPattern -Quiet) {
-        $pidMatches = $foundProcesses | Select-String -Pattern $activePortPattern
-        $firstMatch = $pidMatches.Matches.Get(0).Value
-
-        $pidNumber = <span style=color:#66d9ef>[regex]</span>::match($firstMatch, $pidNumberPattern).Value
-
-        <span style=color:#75715e># 两种实现都可用，二选一即可</span>
-        taskkill /pid $pidNumber /f
-        <span style=color:#75715e># Stop-Process -Force -Id $pidNumber</span>
-    }
-}
-
-<span style=color:#75715e># 启动科学工具(以 v2rayN 为栗)</span>
-<span style=color:#66d9ef>function</span> Start-Kexue-Tool {
-	Print <span style=color:#e6db74>&#34;begin process...&#34;</span>
-    <span style=color:#75715e># 科学工具路径</span>
-    $SOFTWARE_PATH=<span style=color:#e6db74>&#34;D:\v2rayN-Core\v2rayN.exe&#34;</span>
-    <span style=color:#75715e># 科学工具的代理端口</span>
-    $SOCKS_PORT=10808
-    $HTTP_PORT=10809
-    <span style=color:#75715e># 确保端口没被占用</span>
-    Kill-Port-Process $SOCKS_PORT
-    Kill-Port-Process $HTTP_PORT
-    Start-Sleep -Milliseconds 1000
-    <span style=color:#75715e># 启动科学工具</span>
-    Start-Process -FilePath $SOFTWARE_PATH
-    Start-Sleep -Milliseconds 1000
-}
-
-<span style=color:#75715e># 重启科学工具</span>
-<span style=color:#66d9ef>function</span> Restart-Kexue-Tool {
-	Print <span style=color:#e6db74>&#34;stop process...&#34;</span>
-    <span style=color:#75715e># 停止 v2rayN 进程</span>
-    Get-Process v2rayN | Stop-Process
-    Start-Sleep -Milliseconds 1000
-    <span style=color:#75715e># 启动科学工具</span>
-    Start-Kexue-Tool
-}
-
-<span style=color:#75715e># 更新 get_dat 文件</span>
-<span style=color:#66d9ef>function</span> Update-Geo<span style=color:#f92672>-File</span> {
-	Print <span style=color:#e6db74>&#34;update geoip.dat and geosite.dat ...&#34;</span>
-    <span style=color:#75715e># 资源链接</span>
-    $GEOIP_URL=<span style=color:#e6db74>&#34;https://github.com/Loyalsoldier/v2ray-rules-dat/raw/release/geoip.dat&#34;</span>
-    $GEOSITE_URL=<span style=color:#e6db74>&#34;https://github.com/Loyalsoldier/v2ray-rules-dat/raw/release/geosite.dat&#34;</span>
-    <span style=color:#75715e># 资源路径</span>
-    $GEOIP_PATH=<span style=color:#e6db74>&#34;D:\v2rayN-Core\geoip.dat&#34;</span>
-    $GEOSITE_PATH=<span style=color:#e6db74>&#34;D:\v2rayN-Core\geosite.dat&#34;</span>
-    <span style=color:#75715e># 备份路径</span>
-    $GEOIP_BACKUP=$GEOIP_PATH+<span style=color:#e6db74>&#34;.bak&#34;</span>
-    $GEOSITE_BACKUP=$GEOSITE_PATH+<span style=color:#e6db74>&#34;.bak&#34;</span>
-    <span style=color:#75715e># 备份</span>
-    Copy-Item -Path $GEOIP_PATH -Destination $GEOIP_BACKUP -Force
-    Copy-Item -Path $GEOSITE_PATH -Destination $GEOSITE_BACKUP -Force
-    <span style=color:#66d9ef>try</span> {
-        <span style=color:#75715e># 覆盖</span>
-        Invoke-WebRequest -Uri $GEOIP_URL -OutFile $GEOIP_PATH
-        Invoke-WebRequest -Uri $GEOSITE_URL -OutFile $GEOSITE_PATH
-    } <span style=color:#66d9ef>catch</span> {
-        <span style=color:#75715e># 还原</span>
-        Move-Item -Force $GEOIP_BACKUP $GEOIP_PATH
-        Move-Item -Force $GEOSITE_BACKUP $GEOSITE_PATH
-        exit 1
-    }
-}
-Print <span style=color:#e6db74>&#34;begin&#34;</span>
-<span style=color:#75715e># 启动</span>
-Restart-Kexue-Tool
-<span style=color:#75715e># 更新</span>
-Update-Geo<span style=color:#f92672>-File</span>
-<span style=color:#75715e># 重启</span>
-Restart-Kexue-Tool
-Print <span style=color:#e6db74>&#34;stop&#34;</span>
-</code></pre></div></li>
-<li>
-<h5 id=更多信息直接查看原issuehttpsgithubcomloyalsoldierv2ray-rules-datissues10issuecomment-802638946吧>更多信息直接查看原<a href=https://github.com/Loyalsoldier/v2ray-rules-dat/issues/10#issuecomment-802638946>issue</a>吧！</h5>
-</li>
-</ol>
-</div>
-<div class=post-archive>
-<ul class=post-copyright>
-<li><strong>原文作者：</strong><a rel=author href=https://itachi.xyz>阿林</a></li>
-<li style=word-break:break-all><strong>原文链接：</strong><a href=https://itachi.xyz/post/auto-update-geoip-site.html>https://itachi.xyz/post/auto-update-geoip-site.html</a></li>
-<li><strong>版权声明：</strong>本作品采用<a rel=license href=https://creativecommons.org/licenses/by-nc-nd/4.0/>知识共享署名-非商业性使用-禁止演绎 4.0 国际许可协议</a>进行许可，非商业转载请注明出处（作者，原文链接），商业转载请联系作者获得授权。</li>
-</ul>
-</div>
-<br>
-<div class=post-archive>
-</div>
-<div class="post-meta meta-tags">
-<ul class=clearfix>
-<li><a href=/tags/%E5%B0%8F%E4%BA%8B>小事</a></li>
-<li><a href=/tags/%E7%AC%94%E8%AE%B0>笔记</a></li>
-</ul>
-</div>
-</article>
-<div id=gitalk-container></div>
-<link rel=stylesheet href=https://unpkg.com/gitalk/dist/gitalk.css>
-<script src=https://unpkg.com/gitalk/dist/gitalk.min.js></script>
-<script>var gitalk=new Gitalk({id:decodeURI(window.location.pathname),clientID:'30ffb17e5ccaa5f1830e',clientSecret:'67ba9ccd9df5c8f402f46b2462f09d644219c04f',repo:'itachi1912.github.io',owner:'itachi1912',admin:['itachi1912'],labels:['gitment'],perPage:25});gitalk.render('gitalk-container')</script>
-</div>
-</div>
-<div id=secondary>
-<section class=widget>
-<form id=search action=https://itachi.xyz/search/ method=get accept-charset=utf-8 target=_blank _lpchecked=1>
-<input type=text name=q maxlength=20 placeholder=Search>
+<a href=https://itachi.xyz/onenote/ title=一言>一言</a></nav></div></div></div></header><div id=body><div class=container><div class=col-group><div class=col-8 id=main><div class=res-cons><article class=post><header><h1 class=post-title>自动更新VV配置文件</h1></header><date class="post-meta meta-date">2021年9月16日</date><div class=post-meta><span>|</span>
+<span class=meta-category><a href=/categories/technology>Technology</a></span></div><div class=post-meta><span id=busuanzi_container_page_pv>|<span id=busuanzi_value_page_pv></span><span>
+阅读</span></span></div><div class=post-content><blockquote><p>All lives end,all hearts are broken.Caring is not an advantage!</p><p>生命终有尽头，人心终要破碎，太在意可不是什么优点！</p><p>&ndash; &ndash;《神探夏洛克》</p></blockquote><p>分享和记录一下在Github看到的一个每天更新VV的geoip和geosite文件的<a href=https://github.com/Loyalsoldier/v2ray-rules-dat>Repository</a>，同时有几个老哥在<a href=https://github.com/Loyalsoldier/v2ray-rules-dat/issues/10#issuecomment-802638946>issues</a>里面分享了一些自动更新的实现方式，没错，我很懒不想每次都手动更新</p><p>我做了个收集和整理：</p><ol><li><h5 id=原理>原理：</h5><ul><li>开机自动运行 VBS 脚本</li><li>VBS脚本调用ps1脚本</li><li>ps1脚本实现更新</li></ul></li><li><h5 id=实现>实现：</h5><p>a. 新建vbs文件:start.vbs并把该文件放到开机启动目录(win+r 输入<code>shell:startup</code>打开)</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell><span style=display:flex><span>  set ws <span style=color:#f92672>=</span> WScript.CreateObject<span style=color:#f92672>(</span><span style=color:#e6db74>&#34;WScript.Shell&#34;</span><span style=color:#f92672>)</span>
+</span></span><span style=display:flex><span>  ws.Run <span style=color:#e6db74>&#34;powershell D:\v2rayN-Core\updateIPAndsite\update.ps1&#34;</span>, <span style=color:#ae81ff>0</span>
+</span></span></code></pre></div><p>b. 新建ps1脚本:update.ps1 ,可以把该文件放到vv的目录/update/下(会自动新建一个log.log日志文件)，需要修改vv的目录</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-powershell data-lang=powershell><span style=display:flex><span><span style=color:#75715e>#打印日志到文本</span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>function</span> Print($Str){
+</span></span><span style=display:flex><span>	<span style=color:#e6db74>&#34;</span>$(Get-Date -Format <span style=color:#e6db74>&#39;yyyy-MM-dd HH:mm:ss&#39;</span>)<span style=color:#e6db74> $Str&#34;</span> | out-file -filepath D:\v2rayN-Core\updateIPAndsite\log.log -append -width 200
+</span></span><span style=display:flex><span>}
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#75715e># 关闭占用指定端口进程</span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>function</span> Kill-Port-Process($port) {
+</span></span><span style=display:flex><span>    $foundProcesses = netstat -ano | findstr <span style=color:#960050;background-color:#1e0010>:</span>$port
+</span></span><span style=display:flex><span>    $activePortPattern = <span style=color:#e6db74>&#34;:$port\s.+LISTENING\s+\d+$&#34;</span>
+</span></span><span style=display:flex><span>    $pidNumberPattern = <span style=color:#e6db74>&#34;\d+$&#34;</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>IF</span> ($foundProcesses | Select-String -Pattern $activePortPattern -Quiet) {
+</span></span><span style=display:flex><span>        $pidMatches = $foundProcesses | Select-String -Pattern $activePortPattern
+</span></span><span style=display:flex><span>        $firstMatch = $pidMatches.Matches.Get(0).Value
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>        $pidNumber = <span style=color:#66d9ef>[regex]</span>::match($firstMatch, $pidNumberPattern).Value
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>        <span style=color:#75715e># 两种实现都可用，二选一即可</span>
+</span></span><span style=display:flex><span>        taskkill /pid $pidNumber /f
+</span></span><span style=display:flex><span>        <span style=color:#75715e># Stop-Process -Force -Id $pidNumber</span>
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>}
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#75715e># 启动科学工具(以 v2rayN 为栗)</span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>function</span> Start-Kexue-Tool {
+</span></span><span style=display:flex><span>	Print <span style=color:#e6db74>&#34;begin process...&#34;</span>
+</span></span><span style=display:flex><span>    <span style=color:#75715e># 科学工具路径</span>
+</span></span><span style=display:flex><span>    $SOFTWARE_PATH=<span style=color:#e6db74>&#34;D:\v2rayN-Core\v2rayN.exe&#34;</span>
+</span></span><span style=display:flex><span>    <span style=color:#75715e># 科学工具的代理端口</span>
+</span></span><span style=display:flex><span>    $SOCKS_PORT=10808
+</span></span><span style=display:flex><span>    $HTTP_PORT=10809
+</span></span><span style=display:flex><span>    <span style=color:#75715e># 确保端口没被占用</span>
+</span></span><span style=display:flex><span>    Kill-Port-Process $SOCKS_PORT
+</span></span><span style=display:flex><span>    Kill-Port-Process $HTTP_PORT
+</span></span><span style=display:flex><span>    Start-Sleep -Milliseconds 1000
+</span></span><span style=display:flex><span>    <span style=color:#75715e># 启动科学工具</span>
+</span></span><span style=display:flex><span>    Start-Process -FilePath $SOFTWARE_PATH
+</span></span><span style=display:flex><span>    Start-Sleep -Milliseconds 1000
+</span></span><span style=display:flex><span>}
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#75715e># 重启科学工具</span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>function</span> Restart-Kexue-Tool {
+</span></span><span style=display:flex><span>	Print <span style=color:#e6db74>&#34;stop process...&#34;</span>
+</span></span><span style=display:flex><span>    <span style=color:#75715e># 停止 v2rayN 进程</span>
+</span></span><span style=display:flex><span>    Get-Process v2rayN | Stop-Process
+</span></span><span style=display:flex><span>    Start-Sleep -Milliseconds 1000
+</span></span><span style=display:flex><span>    <span style=color:#75715e># 启动科学工具</span>
+</span></span><span style=display:flex><span>    Start-Kexue-Tool
+</span></span><span style=display:flex><span>}
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#75715e># 更新 get_dat 文件</span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>function</span> Update-Geo<span style=color:#f92672>-File</span> {
+</span></span><span style=display:flex><span>	Print <span style=color:#e6db74>&#34;update geoip.dat and geosite.dat ...&#34;</span>
+</span></span><span style=display:flex><span>    <span style=color:#75715e># 资源链接</span>
+</span></span><span style=display:flex><span>    $GEOIP_URL=<span style=color:#e6db74>&#34;https://github.com/Loyalsoldier/v2ray-rules-dat/raw/release/geoip.dat&#34;</span>
+</span></span><span style=display:flex><span>    $GEOSITE_URL=<span style=color:#e6db74>&#34;https://github.com/Loyalsoldier/v2ray-rules-dat/raw/release/geosite.dat&#34;</span>
+</span></span><span style=display:flex><span>    <span style=color:#75715e># 资源路径</span>
+</span></span><span style=display:flex><span>    $GEOIP_PATH=<span style=color:#e6db74>&#34;D:\v2rayN-Core\geoip.dat&#34;</span>
+</span></span><span style=display:flex><span>    $GEOSITE_PATH=<span style=color:#e6db74>&#34;D:\v2rayN-Core\geosite.dat&#34;</span>
+</span></span><span style=display:flex><span>    <span style=color:#75715e># 备份路径</span>
+</span></span><span style=display:flex><span>    $GEOIP_BACKUP=$GEOIP_PATH+<span style=color:#e6db74>&#34;.bak&#34;</span>
+</span></span><span style=display:flex><span>    $GEOSITE_BACKUP=$GEOSITE_PATH+<span style=color:#e6db74>&#34;.bak&#34;</span>
+</span></span><span style=display:flex><span>    <span style=color:#75715e># 备份</span>
+</span></span><span style=display:flex><span>    Copy-Item -Path $GEOIP_PATH -Destination $GEOIP_BACKUP -Force
+</span></span><span style=display:flex><span>    Copy-Item -Path $GEOSITE_PATH -Destination $GEOSITE_BACKUP -Force
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>try</span> {
+</span></span><span style=display:flex><span>        <span style=color:#75715e># 覆盖</span>
+</span></span><span style=display:flex><span>        Invoke-WebRequest -Uri $GEOIP_URL -OutFile $GEOIP_PATH
+</span></span><span style=display:flex><span>        Invoke-WebRequest -Uri $GEOSITE_URL -OutFile $GEOSITE_PATH
+</span></span><span style=display:flex><span>    } <span style=color:#66d9ef>catch</span> {
+</span></span><span style=display:flex><span>        <span style=color:#75715e># 还原</span>
+</span></span><span style=display:flex><span>        Move-Item -Force $GEOIP_BACKUP $GEOIP_PATH
+</span></span><span style=display:flex><span>        Move-Item -Force $GEOSITE_BACKUP $GEOSITE_PATH
+</span></span><span style=display:flex><span>        exit 1
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>}
+</span></span><span style=display:flex><span>Print <span style=color:#e6db74>&#34;begin&#34;</span>
+</span></span><span style=display:flex><span><span style=color:#75715e># 启动</span>
+</span></span><span style=display:flex><span>Restart-Kexue-Tool
+</span></span><span style=display:flex><span><span style=color:#75715e># 更新</span>
+</span></span><span style=display:flex><span>Update-Geo<span style=color:#f92672>-File</span>
+</span></span><span style=display:flex><span><span style=color:#75715e># 重启</span>
+</span></span><span style=display:flex><span>Restart-Kexue-Tool
+</span></span><span style=display:flex><span>Print <span style=color:#e6db74>&#34;stop&#34;</span>
+</span></span></code></pre></div></li><li><h5 id=更多信息直接查看原issuehttpsgithubcomloyalsoldierv2ray-rules-datissues10issuecomment-802638946吧>更多信息直接查看原<a href=https://github.com/Loyalsoldier/v2ray-rules-dat/issues/10#issuecomment-802638946>issue</a>吧！</h5></li></ol></div><div class=post-archive><ul class=post-copyright><li><strong>原文作者：</strong><a rel=author href=https://itachi.xyz>阿林</a></li><li style=word-break:break-all><strong>原文链接：</strong><a href=https://itachi.xyz/post/auto-update-geoip-site.html>https://itachi.xyz/post/auto-update-geoip-site.html</a></li><li><strong>版权声明：</strong>本作品采用<a rel=license href=https://creativecommons.org/licenses/by-nc-nd/4.0/>知识共享署名-非商业性使用-禁止演绎 4.0 国际许可协议</a>进行许可，非商业转载请注明出处（作者，原文链接），商业转载请联系作者获得授权。</li></ul></div><br><div class=post-archive></div><div class="post-meta meta-tags"><ul class=clearfix><li><a href=/tags/%E5%B0%8F%E4%BA%8B>小事</a></li><li><a href=/tags/%E7%AC%94%E8%AE%B0>笔记</a></li></ul></div></article><div id=gitalk-container></div><link rel=stylesheet href=https://unpkg.com/gitalk/dist/gitalk.css><script src=https://unpkg.com/gitalk/dist/gitalk.min.js></script>
+<script>var gitalk=new Gitalk({id:decodeURI(window.location.pathname),clientID:"30ffb17e5ccaa5f1830e",clientSecret:"67ba9ccd9df5c8f402f46b2462f09d644219c04f",repo:"itachi1912.github.io",owner:"itachi1912",admin:["itachi1912"],labels:["gitment"],perPage:25});gitalk.render("gitalk-container")</script></div></div><div id=secondary><section class=widget><form id=search action=https://itachi.xyz/search/ method=get accept-charset=utf-8 target=_blank _lpchecked=1><input type=text name=q maxlength=20 placeholder=Search>
 <input type=hidden name=sitesearch value=https://itachi.xyz>
-<button type=submit class="submit icon-search"></button>
-</form>
-</section>
-<section class=widget>
-<h3 class=widget-title><a href=/categories/>分类</a></h3>
-<ul class=widget-list>
-<li><a href=https://itachi.xyz/categories/life/>Life (10)</a></li>
-<li><a href=https://itachi.xyz/categories/technology/>Technology (15)</a></li>
-<li><a href=https://itachi.xyz/categories/weekly/>Weekly (2)</a></li>
-</ul>
-</section>
-<section class=widget>
-<h3 class=widget-title>最近文章</h3>
-<ul class=widget-list>
-<li>
-<a href=https://itachi.xyz/post/miui-root.html title=MIUI安装Magisk获取ROOT>MIUI安装Magisk获取ROOT</a>
-</li>
-<li>
-<a href=https://itachi.xyz/post/talk-about-legend.html title="<张捷评联想>系列视频">&lt;张捷评联想>系列视频</a>
-</li>
-<li>
-<a href=https://itachi.xyz/post/peaceful-evolution.html title=张捷：从网约车谈田氏代齐式的和平演变>张捷：从网约车谈田氏代齐式的和平演变</a>
-</li>
-<li>
-<a href=https://itachi.xyz/post/ostep-04.html title=OSTEP-4(抽象：进程)>OSTEP-4(抽象：进程)</a>
-</li>
-<li>
-<a href=https://itachi.xyz/post/weekly-002.html title=生活周刊(第2期)：南京大屠杀幸存者黄刘氏去世>生活周刊(第2期)：南京大屠杀幸存者黄刘氏去世</a>
-</li>
-<li>
-<a href=https://itachi.xyz/post/weekly-001.html title=生活周刊(第1期)：缅怀先辈，铭记历史，吾辈自强！>生活周刊(第1期)：缅怀先辈，铭记历史，吾辈自强！</a>
-</li>
-<li>
-<a href=https://itachi.xyz/post/auto-update-geoip-site.html title=自动更新VV配置文件>自动更新VV配置文件</a>
-</li>
-<li>
-<a href=https://itachi.xyz/post/how-to-fight-boredom.html title=如何对抗无聊，培养属于自己的生活兴趣>如何对抗无聊，培养属于自己的生活兴趣</a>
-</li>
-<li>
-<a href=https://itachi.xyz/post/mount-aliyun-disk-to-local.html title=把阿里云盘挂载到本地使用>把阿里云盘挂载到本地使用</a>
-</li>
-<li>
-<a href=https://itachi.xyz/post/get-offer-01.html title=剑指offer计划>剑指offer计划</a>
-</li>
-</ul>
-</section>
-<section class=widget>
-<h3 class=widget-title>友情链接</h3>
-<ul class=widget-list>
-<li>
-<a target=_blank href=https://www.acdiao.com title=AC的简单博客>AC的简单博客</a>
-</li>
-<li>
-<a target=_blank href=https://img.tujidu.com title=AC大佬的图床>AC大佬的图床</a>
-</li>
-<li>
-<a target=_blank href=https://blog.cetcweb.cn/ title=记录实验过程>记录实验过程</a>
-</li>
-<li>
-<a target=_blank href=https://qitablog.com/ title=奇它博客>奇它博客</a>
-</li>
-<li>
-<a target=_blank href=http://laihongquan.com/ title=Ezio>Ezio</a>
-</li>
-<li>
-<a target=_blank href=https://luckly.work/ title=早起的年轻人>早起的年轻人</a>
-</li>
-<li>
-<a target=_blank href=https://geshanzsq.com title=格姗知识圈>格姗知识圈</a>
-</li>
-</ul>
-</section>
-<section class=widget>
-<h3 class=widget-title>其它</h3>
-<ul class=widget-list>
-<li><a href=https://itachi.xyz/index.xml>文章 RSS</a></li>
-</ul>
-</section>
-</div>
-</div>
-<footer id=footer>
-<div style=font-size:.7em>
-Powered by <a href=https://gohugo.io/ target=_black rel=nofollow>Hugo</a>
+<button type=submit class="submit icon-search"></button></form></section><section class=widget><h3 class=widget-title><a href=/categories/>分类</a></h3><ul class=widget-list><li><a href=https://itachi.xyz/categories/life/>Life (10)</a></li><li><a href=https://itachi.xyz/categories/technology/>Technology (15)</a></li><li><a href=https://itachi.xyz/categories/weekly/>Weekly (2)</a></li></ul></section><section class=widget><h3 class=widget-title>最近文章</h3><ul class=widget-list><li><a href=https://itachi.xyz/post/miui-root.html title=MIUI安装Magisk获取ROOT>MIUI安装Magisk获取ROOT</a></li><li><a href=https://itachi.xyz/post/talk-about-legend.html title="<张捷评联想>系列视频">&lt;张捷评联想>系列视频</a></li><li><a href=https://itachi.xyz/post/peaceful-evolution.html title=张捷：从网约车谈田氏代齐式的和平演变>张捷：从网约车谈田氏代齐式的和平演变</a></li><li><a href=https://itachi.xyz/post/ostep-04.html title=OSTEP-4(抽象：进程)>OSTEP-4(抽象：进程)</a></li><li><a href=https://itachi.xyz/post/weekly-002.html title=生活周刊(第2期)：南京大屠杀幸存者黄刘氏去世>生活周刊(第2期)：南京大屠杀幸存者黄刘氏去世</a></li><li><a href=https://itachi.xyz/post/weekly-001.html title=生活周刊(第1期)：缅怀先辈，铭记历史，吾辈自强！>生活周刊(第1期)：缅怀先辈，铭记历史，吾辈自强！</a></li><li><a href=https://itachi.xyz/post/auto-update-geoip-site.html title=自动更新VV配置文件>自动更新VV配置文件</a></li><li><a href=https://itachi.xyz/post/how-to-fight-boredom.html title=如何对抗无聊，培养属于自己的生活兴趣>如何对抗无聊，培养属于自己的生活兴趣</a></li><li><a href=https://itachi.xyz/post/mount-aliyun-disk-to-local.html title=把阿里云盘挂载到本地使用>把阿里云盘挂载到本地使用</a></li><li><a href=https://itachi.xyz/post/get-offer-01.html title=剑指offer计划>剑指offer计划</a></li></ul></section><section class=widget><h3 class=widget-title>友情链接</h3><ul class=widget-list><li><a target=_blank href=https://www.acdiao.com title=AC的简单博客>AC的简单博客</a></li><li><a target=_blank href=https://img.tujidu.com title=AC大佬的图床>AC大佬的图床</a></li><li><a target=_blank href=https://blog.cetcweb.cn/ title=记录实验过程>记录实验过程</a></li><li><a target=_blank href=https://qitablog.com/ title=奇它博客>奇它博客</a></li><li><a target=_blank href=http://laihongquan.com/ title=Ezio>Ezio</a></li><li><a target=_blank href=https://luckly.work/ title=早起的年轻人>早起的年轻人</a></li><li><a target=_blank href=https://geshanzsq.com title=格姗知识圈>格姗知识圈</a></li></ul></section><section class=widget><h3 class=widget-title>其它</h3><ul class=widget-list><li><a href=https://itachi.xyz/index.xml>文章 RSS</a></li></ul></section></div></div><footer id=footer><div style=font-size:.7em>Powered by <a href=https://gohugo.io/ target=_black rel=nofollow>Hugo</a>
 and
-Theme Based On <a href=https://www.flysnow.org/ target=_black>飞雪无情</a>
-</div>
-<br>
-<div style=font-size:.7em>
-&copy; 2022 Made with <span style=color:red>❤</span> By 阿林</a>
-</div>
-</footer>
-<script type=text/javascript>window.MathJax={tex2jax:{inlineMath:[['$','$']],processEscapes:!0}}</script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML" async></script>
+Theme Based On <a href=https://www.flysnow.org/ target=_black>飞雪无情</a></div><br><div style=font-size:.7em>&copy; 2022 Made with <span style=color:red>❤</span> By 阿林</a></div></footer><script type=text/javascript>window.MathJax={tex2jax:{inlineMath:[["$","$"]],processEscapes:!0}}</script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML" async></script>
 <a id=rocket href=#top></a>
 <script type=text/javascript src="/js/totop.js?v=0.0.0" async></script>
-<script type=text/javascript src=//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js async></script>
-</div>
-</div>
-</body>
-</html>
+<script type=text/javascript src=//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js async></script></div></div></body></html>

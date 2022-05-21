@@ -1,308 +1,63 @@
-<!doctype html><html lang=zh-cn>
-<head>
-<meta charset=utf-8>
-<meta http-equiv=x-ua-compatible content="IE=edge">
-<meta name=viewport content="width=device-width,initial-scale=1">
-<meta name=referrer content="no-referrer-when-downgrade">
-<title>《高性能MySQL》读书笔记-3-Schema与数据类型优化2 | itachi's Blog</title>
-<meta property="og:title" content="《高性能MySQL》读书笔记-3-Schema与数据类型优化2 - itachi's Blog">
-<meta property="og:type" content="article">
-<meta property="article:published_time" content="2021-07-30T00:00:00+08:00">
-<meta property="article:modified_time" content="2021-07-30T00:00:00+08:00">
-<meta name=Keywords content="Blog">
-<meta name=description content="《高性能MySQL》读书笔记-3-Schema与数据类型优化2">
-<meta name=author content="阿林">
-<meta property="og:url" content="https://itachi.xyz/post/high-performance-mysql-3.html">
-<link rel="shortcut icon" href=/favicon.ico type=image/x-icon>
-<link rel=stylesheet href=/css/normalize.css>
-<link rel=stylesheet href=/css/style.css>
-<script type=text/javascript src=//cdn.bootcdn.net/ajax/libs/jquery/3.4.1/jquery.min.js></script>
-</head>
-<body>
-<header id=header class=clearfix>
-<div class=container>
-<div class=col-group>
-<div class=site-name>
-<a id=logo href=https://itachi.xyz>
-itachi's Blog
-</a>
-<p class=description>昨夜梦 今辰你 明日思 | Blog about life and learning.</p>
-</div>
-<div>
-<nav id=nav-menu class=clearfix>
-<a class=current href=https://itachi.xyz>首页</a>
+<!doctype html><html lang=zh-cn><head><meta charset=utf-8><meta http-equiv=x-ua-compatible content="IE=edge"><meta name=viewport content="width=device-width,initial-scale=1"><meta name=referrer content="no-referrer-when-downgrade"><title>《高性能MySQL》读书笔记-3-Schema与数据类型优化2 | itachi's Blog</title><meta property="og:title" content="《高性能MySQL》读书笔记-3-Schema与数据类型优化2 - itachi's Blog"><meta property="og:type" content="article"><meta property="article:published_time" content="2021-07-30T00:00:00+08:00"><meta property="article:modified_time" content="2021-07-30T00:00:00+08:00"><meta name=Keywords content="Blog"><meta name=description content="《高性能MySQL》读书笔记-3-Schema与数据类型优化2"><meta name=author content="阿林"><meta property="og:url" content="https://itachi.xyz/post/high-performance-mysql-3.html"><link rel="shortcut icon" href=/favicon.ico type=image/x-icon><link rel=stylesheet href=/css/normalize.css><link rel=stylesheet href=/css/style.css><script type=text/javascript src=//cdn.bootcdn.net/ajax/libs/jquery/3.4.1/jquery.min.js></script></head><body><header id=header class=clearfix><div class=container><div class=col-group><div class=site-name><a id=logo href=https://itachi.xyz>itachi's Blog</a><p class=description>昨夜梦 今辰你 明日思 | Blog about life and learning.</p></div><div><nav id=nav-menu class=clearfix><a class=current href=https://itachi.xyz>首页</a>
 <a href=https://itachi.xyz/archives/ title=归档>归档</a>
 <a href=https://itachi.xyz/about/ title=关于>关于</a>
 <a href=https://itachi.xyz/tags/ title=标签>标签</a>
-<a href=https://itachi.xyz/onenote/ title=一言>一言</a>
-</nav>
-</div>
-</div>
-</div>
-</header>
-<div id=body>
-<div class=container>
-<div class=col-group>
-<div class=col-8 id=main>
-<div class=res-cons>
-<article class=post>
-<header>
-<h1 class=post-title>《高性能MySQL》读书笔记-3-Schema与数据类型优化2</h1>
-</header>
-<date class="post-meta meta-date">
-2021年7月30日
-</date>
-<div class=post-meta>
-<span>|</span>
-<span class=meta-category><a href=/categories/technology>Technology</a></span>
-</div>
-<div class=post-meta>
-<span id=busuanzi_container_page_pv>|<span id=busuanzi_value_page_pv></span><span>
-阅读</span></span>
-</div>
-<div class=post-content>
-<p>第四章 Schema与数据类型优化的第二篇笔记。</p>
-<blockquote>
-<p>伟大的心胸，应该表现出这样的气概——用笑脸来迎接悲惨的厄运，用百倍的勇气来应付一切的不幸。</p>
-<p>&mdash; 鲁迅</p>
-</blockquote>
-<h2 id=2-mysql-schema设计陷阱>2. MySQL schema设计陷阱</h2>
-<h4 id=21-太多的列>2.1 太多的列</h4>
-<p>MySQL的存储引擎API工作时需要在核心服务层和存储引擎层之间通过行缓冲格式拷贝数据，然后在核心服务中将缓冲内容解码成各个列，这个转换过程代价很高。</p>
-<h4 id=22-太多的关联>2.2 太多的关联</h4>
-<p>所谓的”实体-属性-值“(EAV)设计模式是一个糟糕的设计模式。MySQL规定每个关联操作最多61张表，但是EAV需要很多自关联，实际上，太多关联时解析和优化的代价也会成为MySQL的性能问题。</p>
-<h4 id=23-全能的枚举>2.3 全能的枚举</h4>
-<p>注意防止使用过多枚举，一般情况下不要使用枚举。</p>
-<h4 id=24-非此发明not-invent-here的null>2.4 非此发明(not invent here)的NULL</h4>
-<p>一般情况字段值不推荐位null，即使需要事实上的空值时也不一定非要使用null，可以使用0或者没一个特殊值。但是确实需要null值时也不要害怕使用null。</p>
-<h2 id=3-范式和反范式>3. 范式和反范式</h2>
-<p>写密集的场景下，范式化设计schema会有不错的效果:</p>
-<ul>
-<li>范式化的更新操作通常比反范式要快</li>
-<li>数据较好的范式化时，只有很少或者没有重复数据，修改的数据会更少</li>
-<li>范式化的表通常更小，操作会更快</li>
-<li>很少的冗余，意味着检索时更少需要distinct或者group by与语句</li>
-</ul>
-<p>范式化缺点：范式化设计的表通常需要很多关联，这不仅代价昂贵，也可能导致索引失效。范式可能会将同属一个索引的列分散到不同的表中。</p>
-<p>反范式的schema数据都在一张表里，可以很好的避免关联。实际项目开发时经常混用范式和反范式。但这其中需要平衡更新和查询的频率来设计schema</p>
-<h2 id=4-缓存表和汇总表>4. 缓存表和汇总表</h2>
-<p>有时候提升性能的最好方法是在同一张表中保存衍生的冗余数据。</p>
-<ul>
-<li>“缓存表”来表示存储那些可以比较简单的从schema其他表获取(但是获取比较慢)数据的表(逻辑上冗余的数据)。</li>
-<li>“汇总表”表示的是使用Group By语句聚合数据的表(逻辑上不冗余)</li>
-</ul>
-<p>为什么建立汇总表：实时计算统计值是很昂贵的操作，因为要么需要扫描表中的大部分数据，要么查询语句只能在某些特定的索引上才能有效运行，而这类索引一般会对update有影响。</p>
-<p>缓存表：对优化搜索和检索查询语句很有效。这些查询语句经常需要特殊的表和索引。</p>
-<p>此外，使用缓存表和汇总表时，需要决定时实时维护数据还是定期重建。重建并不只是节省资源，也可以 保持表有极少的碎片，以及有完全顺序组织的索引。</p>
-<p>重建表时通常需要保证原表在重建过程中仍然可用，可以通过使用“影子”表来实现：完成建表之后可以通过一个原子的重命名操作来切换影子表和原表。例如，要重建my_table，可先新建my_table_new，填充好数据之后，和原表做切换：</p>
-<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-sql data-lang=sql>mysql<span style=color:#f92672>&gt;</span><span style=color:#66d9ef>drop</span> <span style=color:#66d9ef>table</span> <span style=color:#66d9ef>if</span> <span style=color:#66d9ef>exists</span> my_table_new,my_table_old;
-mysql<span style=color:#f92672>&gt;</span><span style=color:#66d9ef>create</span> <span style=color:#66d9ef>table</span> my_table_new <span style=color:#66d9ef>like</span> my_table;
-mysql<span style=color:#f92672>&gt;</span><span style=color:#66d9ef>rename</span> <span style=color:#66d9ef>table</span> my_table <span style=color:#66d9ef>to</span> my_table_old,my_table_new <span style=color:#66d9ef>to</span> my_table;
-</code></pre></div><p>这样就可以实现在下一次重建之前一致保留旧表数据，如果新表有问题，可以快速切换回滚。</p>
-<h3 id=41-物化视图>4.1 物化视图</h3>
-<p>物化视图实际上是预先计算并存储在磁盘上的表，通过各种策略来刷新和更新。不过MySQL原生并不支持物化识图，可通过第三方工具来实现支持。</p>
-<h3 id=42-计数器表>4.2 计数器表</h3>
-<p>计数器表可以单独建立一张表：</p>
-<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-sql data-lang=sql>mysql<span style=color:#f92672>&gt;</span> <span style=color:#66d9ef>create</span> <span style=color:#66d9ef>table</span> hit_counter(
-		cnt int unsigned <span style=color:#66d9ef>not</span> <span style=color:#66d9ef>null</span>	
-	)ENGIN<span style=color:#f92672>=</span>InnoDB;
-</code></pre></div><p>每次点击之后都会导致对计数器更新：</p>
-<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-sql data-lang=sql>mysql<span style=color:#f92672>&gt;</span> <span style=color:#66d9ef>update</span> hit_counter <span style=color:#66d9ef>set</span> cnt <span style=color:#f92672>=</span> cnt<span style=color:#f92672>+</span><span style=color:#ae81ff>1</span>;
-</code></pre></div><p>问题在于，对于任何想要更新的事务来说，这条记录上都有一个全局互斥锁，使得无法并发，只能串行化。可以这样做：将记录保存在多行中，每次随机更新一条记录，然后统计结果时使用sum来计算：</p>
-<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-sql data-lang=sql><span style=color:#75715e>-- 修改表
-</span><span style=color:#75715e></span>mysql<span style=color:#f92672>&gt;</span> <span style=color:#66d9ef>create</span> <span style=color:#66d9ef>table</span> hit_counter(
-    	slot tinyint unsigned <span style=color:#66d9ef>not</span> <span style=color:#66d9ef>null</span> <span style=color:#66d9ef>primary</span> <span style=color:#66d9ef>key</span>,
-		cnt int unsigned <span style=color:#66d9ef>not</span> <span style=color:#66d9ef>null</span>
-	)ENGIN<span style=color:#f92672>=</span>InnoDB;
-<span style=color:#75715e>-- 初始化时插入100条数据，然后每次更新随机一个slot来更新
-</span><span style=color:#75715e></span>mysql<span style=color:#f92672>&gt;</span> <span style=color:#66d9ef>update</span> hit_counter <span style=color:#66d9ef>set</span> cnt <span style=color:#f92672>=</span> cnt<span style=color:#f92672>+</span><span style=color:#ae81ff>1</span> <span style=color:#66d9ef>where</span> slot <span style=color:#f92672>=</span>RAND() <span style=color:#f92672>*</span> <span style=color:#ae81ff>100</span>;
-<span style=color:#75715e>-- 统计结果
-</span><span style=color:#75715e></span>mysql<span style=color:#f92672>&gt;</span><span style=color:#66d9ef>select</span> <span style=color:#66d9ef>sum</span>(cnt) <span style=color:#66d9ef>from</span> hit_counter;
-</code></pre></div><p>一个需求是每个一段时间开始一个新的计数器(每天一个)</p>
-<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-sql data-lang=sql><span style=color:#75715e>-- 1.修改表
-</span><span style=color:#75715e></span>mysql<span style=color:#f92672>&gt;</span> <span style=color:#66d9ef>create</span> <span style=color:#66d9ef>table</span> daily_hit_counter(
-    	<span style=color:#66d9ef>day</span> date <span style=color:#66d9ef>not</span> <span style=color:#66d9ef>null</span>,
-    	slot tinyint unsigned <span style=color:#66d9ef>not</span> <span style=color:#66d9ef>null</span> ,
-		cnt int unsigned <span style=color:#66d9ef>not</span> <span style=color:#66d9ef>null</span>,
-    	<span style=color:#66d9ef>primary</span> <span style=color:#66d9ef>key</span>(<span style=color:#66d9ef>day</span>,slot)
-	)ENGIN<span style=color:#f92672>=</span>InnoDB;
-<span style=color:#75715e>-- 2.不需要初始化，采用on duplicate key update来替代
-</span><span style=color:#75715e></span>mysql<span style=color:#f92672>&gt;</span><span style=color:#66d9ef>insert</span> <span style=color:#66d9ef>into</span> daily_hit_counter(<span style=color:#66d9ef>day</span>,slot,cnt)
-	<span style=color:#66d9ef>values</span>(<span style=color:#66d9ef>CURRENT_DATE</span>,RAND()<span style=color:#f92672>*</span><span style=color:#ae81ff>100</span>.<span style=color:#ae81ff>1</span>)
-	<span style=color:#66d9ef>on</span> duplicate <span style=color:#66d9ef>key</span> <span style=color:#66d9ef>update</span> cnt <span style=color:#f92672>=</span> cnt <span style=color:#f92672>+</span> <span style=color:#ae81ff>1</span>;
-<span style=color:#75715e>-- 3.避免表太大，可以合并所有结果到0号slot
-</span><span style=color:#75715e></span>mysql<span style=color:#f92672>&gt;</span> <span style=color:#66d9ef>update</span> daily_hit_counter <span style=color:#66d9ef>as</span> <span style=color:#66d9ef>c</span>
-		<span style=color:#66d9ef>inner</span> <span style=color:#66d9ef>join</span>(
-        	<span style=color:#66d9ef>select</span> <span style=color:#66d9ef>day</span>,<span style=color:#66d9ef>sum</span>(cnt) <span style=color:#66d9ef>as</span> cnt ,<span style=color:#66d9ef>min</span>(slot) <span style=color:#66d9ef>as</span> mslot
-             <span style=color:#66d9ef>from</span> daily_hit_counter
-             <span style=color:#66d9ef>group</span> <span style=color:#66d9ef>by</span> <span style=color:#66d9ef>day</span>
-        ) <span style=color:#66d9ef>as</span> x <span style=color:#66d9ef>using</span>(<span style=color:#66d9ef>day</span>)
-        <span style=color:#66d9ef>set</span> <span style=color:#66d9ef>c</span>.cnt  <span style=color:#f92672>=</span> <span style=color:#66d9ef>if</span>(<span style=color:#66d9ef>c</span>.slot <span style=color:#f92672>=</span> x.mslot,x.cnt,<span style=color:#ae81ff>0</span>)
-        <span style=color:#66d9ef>set</span> <span style=color:#66d9ef>c</span>.slot <span style=color:#f92672>=</span> <span style=color:#66d9ef>if</span>(<span style=color:#66d9ef>c</span>.slot <span style=color:#f92672>=</span> x.slot,<span style=color:#ae81ff>0</span>,x.slot);
-<span style=color:#75715e>-- 4.然后删除其他slot
-</span><span style=color:#75715e></span>mysql<span style=color:#f92672>&gt;</span> <span style=color:#66d9ef>delete</span> form daily_hit_counter <span style=color:#66d9ef>where</span> slot <span style=color:#f92672>&lt;&gt;</span><span style=color:#ae81ff>0</span> <span style=color:#66d9ef>and</span> cnt <span style=color:#f92672>=</span> <span style=color:#ae81ff>0</span>;
-</code></pre></div><blockquote>
-<p>为了提高读的速度，可以增加一些额外索引，增加冗余项，甚至创建缓存表和汇总表。这样会导致写查询的负担，也增加了额外的维护操作，但设计高性能的数据库时这是必要的技巧：<strong>更快的读，更慢的写</strong>，但是同时也增加了读操作和写操作的的开发难度。</p>
-</blockquote>
-<h2 id=5-加快alter-table操作的速度>5. 加快alter table操作的速度</h2>
-<p>MySQL执行大部分修改表操作都是用新结构创建一个空表，然后从旧表中查询出所有数据再插入新表，然后删除旧表。</p>
-<p>一般而言，大部分alter table操作将会中断MySQL的服务。对于常见的场景，能使用的技巧：</p>
-<ul>
-<li>
-<p>一种是在一台不提供服务的机器上执行alter table操作，然后和提供服务的主库做切换；</p>
-</li>
-<li>
-<p>影子拷贝：用要求的表结构创建一张表，然后通过原子更名交换两张表名实现切换</p>
-</li>
-</ul>
-<p>修改表某一列的默认值为5：</p>
-<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-sql data-lang=sql><span style=color:#75715e>-- 方法1：
-</span><span style=color:#75715e></span>mssql<span style=color:#f92672>&gt;</span><span style=color:#66d9ef>alter</span> <span style=color:#66d9ef>table</span> my_table
-		<span style=color:#66d9ef>modify</span> <span style=color:#66d9ef>column</span> colu1 tinyint(<span style=color:#ae81ff>3</span>) <span style=color:#66d9ef>not</span> <span style=color:#66d9ef>null</span> <span style=color:#66d9ef>default</span> <span style=color:#ae81ff>5</span>;
-<span style=color:#75715e>-- 方法1的sql会拷贝整个表到一张新表，只是为了修改默认值
-</span><span style=color:#75715e>-- 理论上，可以跳过新建表的过程，列的默认值存在表的.frm文件中，直接修改这个文件就行，所有的modify column都会导致表重建。会很慢。
-</span><span style=color:#75715e></span>
-<span style=color:#75715e>-- 方法2：
-</span><span style=color:#75715e></span>mysql<span style=color:#f92672>&gt;</span> <span style=color:#66d9ef>alter</span> <span style=color:#66d9ef>table</span> my_table
-		<span style=color:#66d9ef>alter</span> <span style=color:#66d9ef>column</span> colu1 <span style=color:#66d9ef>set</span> <span style=color:#66d9ef>default</span> <span style=color:#ae81ff>5</span>;
-<span style=color:#75715e>-- 这个方法会直接修改.frm文件，将很快。
-</span></code></pre></div><h2 id=6-总结>6. 总结</h2>
-<p>简单的原则：</p>
-<ul>
-<li>尽量避免过度设计</li>
-<li>使用小而简单的数据类型，除非真实数据有确切需要，否则尽可能避免null值</li>
-<li>尽量使用相同的字符串，在临时表和排序时肯恶搞导致悲观的按最大长度分配内存</li>
-<li>尽量使用整型定义标识列</li>
-<li>避免使用MySQL已经遗弃的特性，例如指定浮点数的精度，或者整数的显示宽度</li>
-<li>小心使用enum和set</li>
-<li>alter table时可以在备机上完成之后且为主库，或者影子重建方式。</li>
-</ul>
-</div>
-<div class=post-archive>
-<ul class=post-copyright>
-<li><strong>原文作者：</strong><a rel=author href=https://itachi.xyz>阿林</a></li>
-<li style=word-break:break-all><strong>原文链接：</strong><a href=https://itachi.xyz/post/high-performance-mysql-3.html>https://itachi.xyz/post/high-performance-mysql-3.html</a></li>
-<li><strong>版权声明：</strong>本作品采用<a rel=license href=https://creativecommons.org/licenses/by-nc-nd/4.0/>知识共享署名-非商业性使用-禁止演绎 4.0 国际许可协议</a>进行许可，非商业转载请注明出处（作者，原文链接），商业转载请联系作者获得授权。</li>
-</ul>
-</div>
-<br>
-<div class=post-archive>
-</div>
-<div class="post-meta meta-tags">
-<ul class=clearfix>
-<li><a href=/tags/%E9%AB%98%E6%80%A7%E8%83%BDmysql>高性能MySQL</a></li>
-<li><a href=/tags/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0>读书笔记</a></li>
-</ul>
-</div>
-</article>
-<div id=gitalk-container></div>
-<link rel=stylesheet href=https://unpkg.com/gitalk/dist/gitalk.css>
-<script src=https://unpkg.com/gitalk/dist/gitalk.min.js></script>
-<script>var gitalk=new Gitalk({id:decodeURI(window.location.pathname),clientID:'30ffb17e5ccaa5f1830e',clientSecret:'67ba9ccd9df5c8f402f46b2462f09d644219c04f',repo:'itachi1912.github.io',owner:'itachi1912',admin:['itachi1912'],labels:['gitment'],perPage:25});gitalk.render('gitalk-container')</script>
-</div>
-</div>
-<div id=secondary>
-<section class=widget>
-<form id=search action=https://itachi.xyz/search/ method=get accept-charset=utf-8 target=_blank _lpchecked=1>
-<input type=text name=q maxlength=20 placeholder=Search>
+<a href=https://itachi.xyz/onenote/ title=一言>一言</a></nav></div></div></div></header><div id=body><div class=container><div class=col-group><div class=col-8 id=main><div class=res-cons><article class=post><header><h1 class=post-title>《高性能MySQL》读书笔记-3-Schema与数据类型优化2</h1></header><date class="post-meta meta-date">2021年7月30日</date><div class=post-meta><span>|</span>
+<span class=meta-category><a href=/categories/technology>Technology</a></span></div><div class=post-meta><span id=busuanzi_container_page_pv>|<span id=busuanzi_value_page_pv></span><span>
+阅读</span></span></div><div class=post-content><p>第四章 Schema与数据类型优化的第二篇笔记。</p><blockquote><p>伟大的心胸，应该表现出这样的气概——用笑脸来迎接悲惨的厄运，用百倍的勇气来应付一切的不幸。</p><p>&mdash; 鲁迅</p></blockquote><h2 id=2-mysql-schema设计陷阱>2. MySQL schema设计陷阱</h2><h4 id=21-太多的列>2.1 太多的列</h4><p>MySQL的存储引擎API工作时需要在核心服务层和存储引擎层之间通过行缓冲格式拷贝数据，然后在核心服务中将缓冲内容解码成各个列，这个转换过程代价很高。</p><h4 id=22-太多的关联>2.2 太多的关联</h4><p>所谓的”实体-属性-值“(EAV)设计模式是一个糟糕的设计模式。MySQL规定每个关联操作最多61张表，但是EAV需要很多自关联，实际上，太多关联时解析和优化的代价也会成为MySQL的性能问题。</p><h4 id=23-全能的枚举>2.3 全能的枚举</h4><p>注意防止使用过多枚举，一般情况下不要使用枚举。</p><h4 id=24-非此发明not-invent-here的null>2.4 非此发明(not invent here)的NULL</h4><p>一般情况字段值不推荐位null，即使需要事实上的空值时也不一定非要使用null，可以使用0或者没一个特殊值。但是确实需要null值时也不要害怕使用null。</p><h2 id=3-范式和反范式>3. 范式和反范式</h2><p>写密集的场景下，范式化设计schema会有不错的效果:</p><ul><li>范式化的更新操作通常比反范式要快</li><li>数据较好的范式化时，只有很少或者没有重复数据，修改的数据会更少</li><li>范式化的表通常更小，操作会更快</li><li>很少的冗余，意味着检索时更少需要distinct或者group by与语句</li></ul><p>范式化缺点：范式化设计的表通常需要很多关联，这不仅代价昂贵，也可能导致索引失效。范式可能会将同属一个索引的列分散到不同的表中。</p><p>反范式的schema数据都在一张表里，可以很好的避免关联。实际项目开发时经常混用范式和反范式。但这其中需要平衡更新和查询的频率来设计schema</p><h2 id=4-缓存表和汇总表>4. 缓存表和汇总表</h2><p>有时候提升性能的最好方法是在同一张表中保存衍生的冗余数据。</p><ul><li>“缓存表”来表示存储那些可以比较简单的从schema其他表获取(但是获取比较慢)数据的表(逻辑上冗余的数据)。</li><li>“汇总表”表示的是使用Group By语句聚合数据的表(逻辑上不冗余)</li></ul><p>为什么建立汇总表：实时计算统计值是很昂贵的操作，因为要么需要扫描表中的大部分数据，要么查询语句只能在某些特定的索引上才能有效运行，而这类索引一般会对update有影响。</p><p>缓存表：对优化搜索和检索查询语句很有效。这些查询语句经常需要特殊的表和索引。</p><p>此外，使用缓存表和汇总表时，需要决定时实时维护数据还是定期重建。重建并不只是节省资源，也可以 保持表有极少的碎片，以及有完全顺序组织的索引。</p><p>重建表时通常需要保证原表在重建过程中仍然可用，可以通过使用“影子”表来实现：完成建表之后可以通过一个原子的重命名操作来切换影子表和原表。例如，要重建my_table，可先新建my_table_new，填充好数据之后，和原表做切换：</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-sql data-lang=sql><span style=display:flex><span>mysql<span style=color:#f92672>&gt;</span><span style=color:#66d9ef>drop</span> <span style=color:#66d9ef>table</span> <span style=color:#66d9ef>if</span> <span style=color:#66d9ef>exists</span> my_table_new,my_table_old;
+</span></span><span style=display:flex><span>mysql<span style=color:#f92672>&gt;</span><span style=color:#66d9ef>create</span> <span style=color:#66d9ef>table</span> my_table_new <span style=color:#66d9ef>like</span> my_table;
+</span></span><span style=display:flex><span>mysql<span style=color:#f92672>&gt;</span><span style=color:#66d9ef>rename</span> <span style=color:#66d9ef>table</span> my_table <span style=color:#66d9ef>to</span> my_table_old,my_table_new <span style=color:#66d9ef>to</span> my_table;
+</span></span></code></pre></div><p>这样就可以实现在下一次重建之前一致保留旧表数据，如果新表有问题，可以快速切换回滚。</p><h3 id=41-物化视图>4.1 物化视图</h3><p>物化视图实际上是预先计算并存储在磁盘上的表，通过各种策略来刷新和更新。不过MySQL原生并不支持物化识图，可通过第三方工具来实现支持。</p><h3 id=42-计数器表>4.2 计数器表</h3><p>计数器表可以单独建立一张表：</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-sql data-lang=sql><span style=display:flex><span>mysql<span style=color:#f92672>&gt;</span> <span style=color:#66d9ef>create</span> <span style=color:#66d9ef>table</span> hit_counter(
+</span></span><span style=display:flex><span>		cnt int unsigned <span style=color:#66d9ef>not</span> <span style=color:#66d9ef>null</span>	
+</span></span><span style=display:flex><span>	)ENGIN<span style=color:#f92672>=</span>InnoDB;
+</span></span></code></pre></div><p>每次点击之后都会导致对计数器更新：</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-sql data-lang=sql><span style=display:flex><span>mysql<span style=color:#f92672>&gt;</span> <span style=color:#66d9ef>update</span> hit_counter <span style=color:#66d9ef>set</span> cnt <span style=color:#f92672>=</span> cnt<span style=color:#f92672>+</span><span style=color:#ae81ff>1</span>;
+</span></span></code></pre></div><p>问题在于，对于任何想要更新的事务来说，这条记录上都有一个全局互斥锁，使得无法并发，只能串行化。可以这样做：将记录保存在多行中，每次随机更新一条记录，然后统计结果时使用sum来计算：</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-sql data-lang=sql><span style=display:flex><span><span style=color:#75715e>-- 修改表
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>mysql<span style=color:#f92672>&gt;</span> <span style=color:#66d9ef>create</span> <span style=color:#66d9ef>table</span> hit_counter(
+</span></span><span style=display:flex><span>    	slot tinyint unsigned <span style=color:#66d9ef>not</span> <span style=color:#66d9ef>null</span> <span style=color:#66d9ef>primary</span> <span style=color:#66d9ef>key</span>,
+</span></span><span style=display:flex><span>		cnt int unsigned <span style=color:#66d9ef>not</span> <span style=color:#66d9ef>null</span>
+</span></span><span style=display:flex><span>	)ENGIN<span style=color:#f92672>=</span>InnoDB;
+</span></span><span style=display:flex><span><span style=color:#75715e>-- 初始化时插入100条数据，然后每次更新随机一个slot来更新
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>mysql<span style=color:#f92672>&gt;</span> <span style=color:#66d9ef>update</span> hit_counter <span style=color:#66d9ef>set</span> cnt <span style=color:#f92672>=</span> cnt<span style=color:#f92672>+</span><span style=color:#ae81ff>1</span> <span style=color:#66d9ef>where</span> slot <span style=color:#f92672>=</span>RAND() <span style=color:#f92672>*</span> <span style=color:#ae81ff>100</span>;
+</span></span><span style=display:flex><span><span style=color:#75715e>-- 统计结果
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>mysql<span style=color:#f92672>&gt;</span><span style=color:#66d9ef>select</span> <span style=color:#66d9ef>sum</span>(cnt) <span style=color:#66d9ef>from</span> hit_counter;
+</span></span></code></pre></div><p>一个需求是每个一段时间开始一个新的计数器(每天一个)</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-sql data-lang=sql><span style=display:flex><span><span style=color:#75715e>-- 1.修改表
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>mysql<span style=color:#f92672>&gt;</span> <span style=color:#66d9ef>create</span> <span style=color:#66d9ef>table</span> daily_hit_counter(
+</span></span><span style=display:flex><span>    	<span style=color:#66d9ef>day</span> date <span style=color:#66d9ef>not</span> <span style=color:#66d9ef>null</span>,
+</span></span><span style=display:flex><span>    	slot tinyint unsigned <span style=color:#66d9ef>not</span> <span style=color:#66d9ef>null</span> ,
+</span></span><span style=display:flex><span>		cnt int unsigned <span style=color:#66d9ef>not</span> <span style=color:#66d9ef>null</span>,
+</span></span><span style=display:flex><span>    	<span style=color:#66d9ef>primary</span> <span style=color:#66d9ef>key</span>(<span style=color:#66d9ef>day</span>,slot)
+</span></span><span style=display:flex><span>	)ENGIN<span style=color:#f92672>=</span>InnoDB;
+</span></span><span style=display:flex><span><span style=color:#75715e>-- 2.不需要初始化，采用on duplicate key update来替代
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>mysql<span style=color:#f92672>&gt;</span><span style=color:#66d9ef>insert</span> <span style=color:#66d9ef>into</span> daily_hit_counter(<span style=color:#66d9ef>day</span>,slot,cnt)
+</span></span><span style=display:flex><span>	<span style=color:#66d9ef>values</span>(<span style=color:#66d9ef>CURRENT_DATE</span>,RAND()<span style=color:#f92672>*</span><span style=color:#ae81ff>100</span>.<span style=color:#ae81ff>1</span>)
+</span></span><span style=display:flex><span>	<span style=color:#66d9ef>on</span> duplicate <span style=color:#66d9ef>key</span> <span style=color:#66d9ef>update</span> cnt <span style=color:#f92672>=</span> cnt <span style=color:#f92672>+</span> <span style=color:#ae81ff>1</span>;
+</span></span><span style=display:flex><span><span style=color:#75715e>-- 3.避免表太大，可以合并所有结果到0号slot
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>mysql<span style=color:#f92672>&gt;</span> <span style=color:#66d9ef>update</span> daily_hit_counter <span style=color:#66d9ef>as</span> <span style=color:#66d9ef>c</span>
+</span></span><span style=display:flex><span>		<span style=color:#66d9ef>inner</span> <span style=color:#66d9ef>join</span>(
+</span></span><span style=display:flex><span>        	<span style=color:#66d9ef>select</span> <span style=color:#66d9ef>day</span>,<span style=color:#66d9ef>sum</span>(cnt) <span style=color:#66d9ef>as</span> cnt ,<span style=color:#66d9ef>min</span>(slot) <span style=color:#66d9ef>as</span> mslot
+</span></span><span style=display:flex><span>             <span style=color:#66d9ef>from</span> daily_hit_counter
+</span></span><span style=display:flex><span>             <span style=color:#66d9ef>group</span> <span style=color:#66d9ef>by</span> <span style=color:#66d9ef>day</span>
+</span></span><span style=display:flex><span>        ) <span style=color:#66d9ef>as</span> x <span style=color:#66d9ef>using</span>(<span style=color:#66d9ef>day</span>)
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>set</span> <span style=color:#66d9ef>c</span>.cnt  <span style=color:#f92672>=</span> <span style=color:#66d9ef>if</span>(<span style=color:#66d9ef>c</span>.slot <span style=color:#f92672>=</span> x.mslot,x.cnt,<span style=color:#ae81ff>0</span>)
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>set</span> <span style=color:#66d9ef>c</span>.slot <span style=color:#f92672>=</span> <span style=color:#66d9ef>if</span>(<span style=color:#66d9ef>c</span>.slot <span style=color:#f92672>=</span> x.slot,<span style=color:#ae81ff>0</span>,x.slot);
+</span></span><span style=display:flex><span><span style=color:#75715e>-- 4.然后删除其他slot
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>mysql<span style=color:#f92672>&gt;</span> <span style=color:#66d9ef>delete</span> form daily_hit_counter <span style=color:#66d9ef>where</span> slot <span style=color:#f92672>&lt;&gt;</span><span style=color:#ae81ff>0</span> <span style=color:#66d9ef>and</span> cnt <span style=color:#f92672>=</span> <span style=color:#ae81ff>0</span>;
+</span></span></code></pre></div><blockquote><p>为了提高读的速度，可以增加一些额外索引，增加冗余项，甚至创建缓存表和汇总表。这样会导致写查询的负担，也增加了额外的维护操作，但设计高性能的数据库时这是必要的技巧：<strong>更快的读，更慢的写</strong>，但是同时也增加了读操作和写操作的的开发难度。</p></blockquote><h2 id=5-加快alter-table操作的速度>5. 加快alter table操作的速度</h2><p>MySQL执行大部分修改表操作都是用新结构创建一个空表，然后从旧表中查询出所有数据再插入新表，然后删除旧表。</p><p>一般而言，大部分alter table操作将会中断MySQL的服务。对于常见的场景，能使用的技巧：</p><ul><li><p>一种是在一台不提供服务的机器上执行alter table操作，然后和提供服务的主库做切换；</p></li><li><p>影子拷贝：用要求的表结构创建一张表，然后通过原子更名交换两张表名实现切换</p></li></ul><p>修改表某一列的默认值为5：</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-sql data-lang=sql><span style=display:flex><span><span style=color:#75715e>-- 方法1：
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>mssql<span style=color:#f92672>&gt;</span><span style=color:#66d9ef>alter</span> <span style=color:#66d9ef>table</span> my_table
+</span></span><span style=display:flex><span>		<span style=color:#66d9ef>modify</span> <span style=color:#66d9ef>column</span> colu1 tinyint(<span style=color:#ae81ff>3</span>) <span style=color:#66d9ef>not</span> <span style=color:#66d9ef>null</span> <span style=color:#66d9ef>default</span> <span style=color:#ae81ff>5</span>;
+</span></span><span style=display:flex><span><span style=color:#75715e>-- 方法1的sql会拷贝整个表到一张新表，只是为了修改默认值
+</span></span></span><span style=display:flex><span><span style=color:#75715e>-- 理论上，可以跳过新建表的过程，列的默认值存在表的.frm文件中，直接修改这个文件就行，所有的modify column都会导致表重建。会很慢。
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>
+</span></span><span style=display:flex><span><span style=color:#75715e>-- 方法2：
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>mysql<span style=color:#f92672>&gt;</span> <span style=color:#66d9ef>alter</span> <span style=color:#66d9ef>table</span> my_table
+</span></span><span style=display:flex><span>		<span style=color:#66d9ef>alter</span> <span style=color:#66d9ef>column</span> colu1 <span style=color:#66d9ef>set</span> <span style=color:#66d9ef>default</span> <span style=color:#ae81ff>5</span>;
+</span></span><span style=display:flex><span><span style=color:#75715e>-- 这个方法会直接修改.frm文件，将很快。
+</span></span></span></code></pre></div><h2 id=6-总结>6. 总结</h2><p>简单的原则：</p><ul><li>尽量避免过度设计</li><li>使用小而简单的数据类型，除非真实数据有确切需要，否则尽可能避免null值</li><li>尽量使用相同的字符串，在临时表和排序时肯恶搞导致悲观的按最大长度分配内存</li><li>尽量使用整型定义标识列</li><li>避免使用MySQL已经遗弃的特性，例如指定浮点数的精度，或者整数的显示宽度</li><li>小心使用enum和set</li><li>alter table时可以在备机上完成之后且为主库，或者影子重建方式。</li></ul></div><div class=post-archive><ul class=post-copyright><li><strong>原文作者：</strong><a rel=author href=https://itachi.xyz>阿林</a></li><li style=word-break:break-all><strong>原文链接：</strong><a href=https://itachi.xyz/post/high-performance-mysql-3.html>https://itachi.xyz/post/high-performance-mysql-3.html</a></li><li><strong>版权声明：</strong>本作品采用<a rel=license href=https://creativecommons.org/licenses/by-nc-nd/4.0/>知识共享署名-非商业性使用-禁止演绎 4.0 国际许可协议</a>进行许可，非商业转载请注明出处（作者，原文链接），商业转载请联系作者获得授权。</li></ul></div><br><div class=post-archive></div><div class="post-meta meta-tags"><ul class=clearfix><li><a href=/tags/%E9%AB%98%E6%80%A7%E8%83%BDmysql>高性能MySQL</a></li><li><a href=/tags/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0>读书笔记</a></li></ul></div></article><div id=gitalk-container></div><link rel=stylesheet href=https://unpkg.com/gitalk/dist/gitalk.css><script src=https://unpkg.com/gitalk/dist/gitalk.min.js></script>
+<script>var gitalk=new Gitalk({id:decodeURI(window.location.pathname),clientID:"30ffb17e5ccaa5f1830e",clientSecret:"67ba9ccd9df5c8f402f46b2462f09d644219c04f",repo:"itachi1912.github.io",owner:"itachi1912",admin:["itachi1912"],labels:["gitment"],perPage:25});gitalk.render("gitalk-container")</script></div></div><div id=secondary><section class=widget><form id=search action=https://itachi.xyz/search/ method=get accept-charset=utf-8 target=_blank _lpchecked=1><input type=text name=q maxlength=20 placeholder=Search>
 <input type=hidden name=sitesearch value=https://itachi.xyz>
-<button type=submit class="submit icon-search"></button>
-</form>
-</section>
-<section class=widget>
-<h3 class=widget-title><a href=/categories/>分类</a></h3>
-<ul class=widget-list>
-<li><a href=https://itachi.xyz/categories/life/>Life (10)</a></li>
-<li><a href=https://itachi.xyz/categories/technology/>Technology (15)</a></li>
-<li><a href=https://itachi.xyz/categories/weekly/>Weekly (2)</a></li>
-</ul>
-</section>
-<section class=widget>
-<h3 class=widget-title>最近文章</h3>
-<ul class=widget-list>
-<li>
-<a href=https://itachi.xyz/post/miui-root.html title=MIUI安装Magisk获取ROOT>MIUI安装Magisk获取ROOT</a>
-</li>
-<li>
-<a href=https://itachi.xyz/post/talk-about-legend.html title="<张捷评联想>系列视频">&lt;张捷评联想>系列视频</a>
-</li>
-<li>
-<a href=https://itachi.xyz/post/peaceful-evolution.html title=张捷：从网约车谈田氏代齐式的和平演变>张捷：从网约车谈田氏代齐式的和平演变</a>
-</li>
-<li>
-<a href=https://itachi.xyz/post/ostep-04.html title=OSTEP-4(抽象：进程)>OSTEP-4(抽象：进程)</a>
-</li>
-<li>
-<a href=https://itachi.xyz/post/weekly-002.html title=生活周刊(第2期)：南京大屠杀幸存者黄刘氏去世>生活周刊(第2期)：南京大屠杀幸存者黄刘氏去世</a>
-</li>
-<li>
-<a href=https://itachi.xyz/post/weekly-001.html title=生活周刊(第1期)：缅怀先辈，铭记历史，吾辈自强！>生活周刊(第1期)：缅怀先辈，铭记历史，吾辈自强！</a>
-</li>
-<li>
-<a href=https://itachi.xyz/post/auto-update-geoip-site.html title=自动更新VV配置文件>自动更新VV配置文件</a>
-</li>
-<li>
-<a href=https://itachi.xyz/post/how-to-fight-boredom.html title=如何对抗无聊，培养属于自己的生活兴趣>如何对抗无聊，培养属于自己的生活兴趣</a>
-</li>
-<li>
-<a href=https://itachi.xyz/post/mount-aliyun-disk-to-local.html title=把阿里云盘挂载到本地使用>把阿里云盘挂载到本地使用</a>
-</li>
-<li>
-<a href=https://itachi.xyz/post/get-offer-01.html title=剑指offer计划>剑指offer计划</a>
-</li>
-</ul>
-</section>
-<section class=widget>
-<h3 class=widget-title>友情链接</h3>
-<ul class=widget-list>
-<li>
-<a target=_blank href=https://www.acdiao.com title=AC的简单博客>AC的简单博客</a>
-</li>
-<li>
-<a target=_blank href=https://img.tujidu.com title=AC大佬的图床>AC大佬的图床</a>
-</li>
-<li>
-<a target=_blank href=https://blog.cetcweb.cn/ title=记录实验过程>记录实验过程</a>
-</li>
-<li>
-<a target=_blank href=https://qitablog.com/ title=奇它博客>奇它博客</a>
-</li>
-<li>
-<a target=_blank href=http://laihongquan.com/ title=Ezio>Ezio</a>
-</li>
-<li>
-<a target=_blank href=https://luckly.work/ title=早起的年轻人>早起的年轻人</a>
-</li>
-<li>
-<a target=_blank href=https://geshanzsq.com title=格姗知识圈>格姗知识圈</a>
-</li>
-</ul>
-</section>
-<section class=widget>
-<h3 class=widget-title>其它</h3>
-<ul class=widget-list>
-<li><a href=https://itachi.xyz/index.xml>文章 RSS</a></li>
-</ul>
-</section>
-</div>
-</div>
-<footer id=footer>
-<div style=font-size:.7em>
-Powered by <a href=https://gohugo.io/ target=_black rel=nofollow>Hugo</a>
+<button type=submit class="submit icon-search"></button></form></section><section class=widget><h3 class=widget-title><a href=/categories/>分类</a></h3><ul class=widget-list><li><a href=https://itachi.xyz/categories/life/>Life (10)</a></li><li><a href=https://itachi.xyz/categories/technology/>Technology (15)</a></li><li><a href=https://itachi.xyz/categories/weekly/>Weekly (2)</a></li></ul></section><section class=widget><h3 class=widget-title>最近文章</h3><ul class=widget-list><li><a href=https://itachi.xyz/post/miui-root.html title=MIUI安装Magisk获取ROOT>MIUI安装Magisk获取ROOT</a></li><li><a href=https://itachi.xyz/post/talk-about-legend.html title="<张捷评联想>系列视频">&lt;张捷评联想>系列视频</a></li><li><a href=https://itachi.xyz/post/peaceful-evolution.html title=张捷：从网约车谈田氏代齐式的和平演变>张捷：从网约车谈田氏代齐式的和平演变</a></li><li><a href=https://itachi.xyz/post/ostep-04.html title=OSTEP-4(抽象：进程)>OSTEP-4(抽象：进程)</a></li><li><a href=https://itachi.xyz/post/weekly-002.html title=生活周刊(第2期)：南京大屠杀幸存者黄刘氏去世>生活周刊(第2期)：南京大屠杀幸存者黄刘氏去世</a></li><li><a href=https://itachi.xyz/post/weekly-001.html title=生活周刊(第1期)：缅怀先辈，铭记历史，吾辈自强！>生活周刊(第1期)：缅怀先辈，铭记历史，吾辈自强！</a></li><li><a href=https://itachi.xyz/post/auto-update-geoip-site.html title=自动更新VV配置文件>自动更新VV配置文件</a></li><li><a href=https://itachi.xyz/post/how-to-fight-boredom.html title=如何对抗无聊，培养属于自己的生活兴趣>如何对抗无聊，培养属于自己的生活兴趣</a></li><li><a href=https://itachi.xyz/post/mount-aliyun-disk-to-local.html title=把阿里云盘挂载到本地使用>把阿里云盘挂载到本地使用</a></li><li><a href=https://itachi.xyz/post/get-offer-01.html title=剑指offer计划>剑指offer计划</a></li></ul></section><section class=widget><h3 class=widget-title>友情链接</h3><ul class=widget-list><li><a target=_blank href=https://www.acdiao.com title=AC的简单博客>AC的简单博客</a></li><li><a target=_blank href=https://img.tujidu.com title=AC大佬的图床>AC大佬的图床</a></li><li><a target=_blank href=https://blog.cetcweb.cn/ title=记录实验过程>记录实验过程</a></li><li><a target=_blank href=https://qitablog.com/ title=奇它博客>奇它博客</a></li><li><a target=_blank href=http://laihongquan.com/ title=Ezio>Ezio</a></li><li><a target=_blank href=https://luckly.work/ title=早起的年轻人>早起的年轻人</a></li><li><a target=_blank href=https://geshanzsq.com title=格姗知识圈>格姗知识圈</a></li></ul></section><section class=widget><h3 class=widget-title>其它</h3><ul class=widget-list><li><a href=https://itachi.xyz/index.xml>文章 RSS</a></li></ul></section></div></div><footer id=footer><div style=font-size:.7em>Powered by <a href=https://gohugo.io/ target=_black rel=nofollow>Hugo</a>
 and
-Theme Based On <a href=https://www.flysnow.org/ target=_black>飞雪无情</a>
-</div>
-<br>
-<div style=font-size:.7em>
-&copy; 2022 Made with <span style=color:red>❤</span> By 阿林</a>
-</div>
-</footer>
-<script type=text/javascript>window.MathJax={tex2jax:{inlineMath:[['$','$']],processEscapes:!0}}</script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML" async></script>
+Theme Based On <a href=https://www.flysnow.org/ target=_black>飞雪无情</a></div><br><div style=font-size:.7em>&copy; 2022 Made with <span style=color:red>❤</span> By 阿林</a></div></footer><script type=text/javascript>window.MathJax={tex2jax:{inlineMath:[["$","$"]],processEscapes:!0}}</script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML" async></script>
 <a id=rocket href=#top></a>
 <script type=text/javascript src="/js/totop.js?v=0.0.0" async></script>
-<script type=text/javascript src=//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js async></script>
-</div>
-</div>
-</body>
-</html>
+<script type=text/javascript src=//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js async></script></div></div></body></html>

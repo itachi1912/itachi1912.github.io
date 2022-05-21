@@ -1,238 +1,35 @@
-<!doctype html><html lang=zh-cn>
-<head>
-<meta charset=utf-8>
-<meta http-equiv=x-ua-compatible content="IE=edge">
-<meta name=viewport content="width=device-width,initial-scale=1">
-<meta name=referrer content="no-referrer-when-downgrade">
-<title>MIUI安装Magisk获取ROOT | itachi's Blog</title>
-<meta property="og:title" content="MIUI安装Magisk获取ROOT - itachi's Blog">
-<meta property="og:type" content="article">
-<meta property="article:published_time" content="2022-01-01T00:00:00+08:00">
-<meta property="article:modified_time" content="2022-01-01T00:00:00+08:00">
-<meta name=Keywords content="Blog">
-<meta name=description content="MIUI安装Magisk获取ROOT">
-<meta name=author content="阿林">
-<meta property="og:url" content="https://itachi.xyz/post/miui-root.html">
-<link rel="shortcut icon" href=/favicon.ico type=image/x-icon>
-<link rel=stylesheet href=/css/normalize.css>
-<link rel=stylesheet href=/css/style.css>
-<script type=text/javascript src=//cdn.bootcdn.net/ajax/libs/jquery/3.4.1/jquery.min.js></script>
-</head>
-<body>
-<header id=header class=clearfix>
-<div class=container>
-<div class=col-group>
-<div class=site-name>
-<a id=logo href=https://itachi.xyz>
-itachi's Blog
-</a>
-<p class=description>昨夜梦 今辰你 明日思 | Blog about life and learning.</p>
-</div>
-<div>
-<nav id=nav-menu class=clearfix>
-<a class=current href=https://itachi.xyz>首页</a>
+<!doctype html><html lang=zh-cn><head><meta charset=utf-8><meta http-equiv=x-ua-compatible content="IE=edge"><meta name=viewport content="width=device-width,initial-scale=1"><meta name=referrer content="no-referrer-when-downgrade"><title>MIUI安装Magisk获取ROOT | itachi's Blog</title><meta property="og:title" content="MIUI安装Magisk获取ROOT - itachi's Blog"><meta property="og:type" content="article"><meta property="article:published_time" content="2022-01-01T00:00:00+08:00"><meta property="article:modified_time" content="2022-01-01T00:00:00+08:00"><meta name=Keywords content="Blog"><meta name=description content="MIUI安装Magisk获取ROOT"><meta name=author content="阿林"><meta property="og:url" content="https://itachi.xyz/post/miui-root.html"><link rel="shortcut icon" href=/favicon.ico type=image/x-icon><link rel=stylesheet href=/css/normalize.css><link rel=stylesheet href=/css/style.css><script type=text/javascript src=//cdn.bootcdn.net/ajax/libs/jquery/3.4.1/jquery.min.js></script></head><body><header id=header class=clearfix><div class=container><div class=col-group><div class=site-name><a id=logo href=https://itachi.xyz>itachi's Blog</a><p class=description>昨夜梦 今辰你 明日思 | Blog about life and learning.</p></div><div><nav id=nav-menu class=clearfix><a class=current href=https://itachi.xyz>首页</a>
 <a href=https://itachi.xyz/archives/ title=归档>归档</a>
 <a href=https://itachi.xyz/about/ title=关于>关于</a>
 <a href=https://itachi.xyz/tags/ title=标签>标签</a>
-<a href=https://itachi.xyz/onenote/ title=一言>一言</a>
-</nav>
-</div>
-</div>
-</div>
-</header>
-<div id=body>
-<div class=container>
-<div class=col-group>
-<div class=col-8 id=main>
-<div class=res-cons>
-<article class=post>
-<header>
-<h1 class=post-title>MIUI安装Magisk获取ROOT</h1>
-</header>
-<date class="post-meta meta-date">
-2022年1月1日
-</date>
-<div class=post-meta>
-<span>|</span>
-<span class=meta-category><a href=/categories/technology>Technology</a></span>
-</div>
-<div class=post-meta>
-<span id=busuanzi_container_page_pv>|<span id=busuanzi_value_page_pv></span><span>
-阅读</span></span>
-</div>
-<div class=post-content>
-<ol>
-<li>
-<h4 id=下载完整系统包>下载完整系统包</h4>
-<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell>1. 系统更新界面右上角-下载最新完整包
-2. 打开下载管理APP，看到正在下载系统更新包之后多任务切换回系统更新界面，点击界面下方的下载进度，选择取消下载。与此同时下载管理APP中的下载不受影响会继续下载
-3. 等待下载完毕
-</code></pre></div></li>
-<li>
-<h4 id=解包获取bootimg文件>解包获取boot.img文件</h4>
-<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell>1. 在【设置-我的设备-全部参数-MIUI版本】中狂点，直到弹出已处于开发者选项
-2. 手机用USB链接电脑后，打开【设置-开发者选项-USB调试-信任该设备】
-3. 电脑端打开文件管理器，找到手机所在盘符，打开目录【内部存储设备-Download-downloaded_rom】找到刚刚下载好的完整系统包，复制到电脑上可以找到的任意目录。包名类似于：<span style=color:#f92672>[</span>miui_XXXXXX_yy.mm.dd_5ace8ca1aa_12.0.zip<span style=color:#f92672>]</span>
-4. 找到payload.bin解包神器<span style=color:#f92672>[</span>把ROM拖到我头上.exe<span style=color:#f92672>]</span>,把2.3中复制的包拖到它头上开始解包，解完包后会在包的同一级目录下生成<span style=color:#f92672>[</span>extracted_yyyyMMdd_HHmmss<span style=color:#f92672>]</span>目录，打开该目录即可看到boot.img文件
-5. 复制该boot.img到手机目录【内部存储设备-Download】下
-</code></pre></div></li>
-<li>
-<h4 id=修补bootimg文件>修补boot.img文件</h4>
-<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell>1. 手机端打开 Magisk APP，主页上半部分找到Magisk模块，点击右边的安装.
-2. 选择【选择并修补一个文件-开始】在弹出的手机文件管理器找到2.5中复制的boot.img修补boot.img。
-3. 修补完成后会在手机【内部存储设备-Download】下生成类似<span style=color:#f92672>[</span>magisk_patched-23000_Vpyyl.img<span style=color:#f92672>]</span>的文件。
-4. 拷贝该magisk_patched文件到电脑的adb工具目录下
-</code></pre></div></li>
-<li>
-<h4 id=刷入临时root>刷入临时root</h4>
-<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell>1. 在电脑端找到adb工具目录空白处，鼠标右键选择【在Windows终端打开】
-2. 打开的Windows终端输入<span style=color:#e6db74>`</span>adb.exe<span style=color:#e6db74>`</span>回车看adb环境是否正常
-3. Windows终端输入命令<span style=color:#e6db74>`</span>adb.exe reboot fastboot<span style=color:#e6db74>`</span>,若命令正确则手机会重启到fastboot界面<span style=color:#f92672>(</span>以前界面是米兔，现在是黑底红字FASTBOOT<span style=color:#f92672>)</span>
-4. Windows终端接着输入命令<span style=color:#e6db74>`</span>fastboot.exe flash boot magisk_patched-23000_Vpyyl.img<span style=color:#e6db74>`</span> 刷入修补好的文件<span style=color:#f92672>(</span>以前可以直接<span style=color:#e6db74>`</span>fastboot.exe boot magisk_patched-23000_Vpyyl.img<span style=color:#e6db74>`</span> MIUI12.5的某个版本之后需要在boot之前加上flash<span style=color:#f92672>)</span>
-5. 刷入修补文件之后如果手机没有自动重启，则在Windows终端输入命令 <span style=color:#e6db74>`</span>fastboot.exe reboot<span style=color:#e6db74>`</span>让手机重启
-</code></pre></div></li>
-<li>
-<h4 id=获取永久root>获取永久root</h4>
-<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell>1. 手机端打开Magisk APP 主页找到Magisk模块，点击【安装-直接安装】刷入
-2. 刷入后点击右下角的重启按钮重启手机
-3. Enjoy it！
-</code></pre></div></li>
-</ol>
-<h4 id=附>附：</h4>
-<p>[1] 手机需要先解BL锁<br>
-[2] 下载并安装合适版本的<a href=https://github.com/topjohnwu/Magisk/releases>Magisk</a><br>
-[3] 下载好ADB<a href=https://developer.android.com/studio/releases/platform-tools>工具包</a>和payload.bin<a href=https://www.daxiaamu.com/5795/>解包工具</a><br>
-[4] 此处的永久root是说当前版本的永久root，更新版本之后root就大概率无了，需要再次操作<br>
-[5] 理论上来说，不同机型或者不同版本的boot.img和magisk_patched*.img文件不通用，切忌混用<br>
-[6] 提前备份数据! 提前备份数据! 提前备份数据!</p>
-<h4 id=参考>参考：</h4>
-<p><a href=https://www.bilibili.com/read/cv6733630/>MIUI12安装Magisk获取ROOT</a></p>
-</div>
-<div class=post-archive>
-<ul class=post-copyright>
-<li><strong>原文作者：</strong><a rel=author href=https://itachi.xyz>阿林</a></li>
-<li style=word-break:break-all><strong>原文链接：</strong><a href=https://itachi.xyz/post/miui-root.html>https://itachi.xyz/post/miui-root.html</a></li>
-<li><strong>版权声明：</strong>本作品采用<a rel=license href=https://creativecommons.org/licenses/by-nc-nd/4.0/>知识共享署名-非商业性使用-禁止演绎 4.0 国际许可协议</a>进行许可，非商业转载请注明出处（作者，原文链接），商业转载请联系作者获得授权。</li>
-</ul>
-</div>
-<br>
-<div class=post-archive>
-</div>
-<div class="post-meta meta-tags">
-<ul class=clearfix>
-<li><a href=/tags/%E6%90%9E%E6%9C%BA>搞机</a></li>
-<li><a href=/tags/miui>MIUI</a></li>
-</ul>
-</div>
-</article>
-<div id=gitalk-container></div>
-<link rel=stylesheet href=https://unpkg.com/gitalk/dist/gitalk.css>
-<script src=https://unpkg.com/gitalk/dist/gitalk.min.js></script>
-<script>var gitalk=new Gitalk({id:decodeURI(window.location.pathname),clientID:'30ffb17e5ccaa5f1830e',clientSecret:'67ba9ccd9df5c8f402f46b2462f09d644219c04f',repo:'itachi1912.github.io',owner:'itachi1912',admin:['itachi1912'],labels:['gitment'],perPage:25});gitalk.render('gitalk-container')</script>
-</div>
-</div>
-<div id=secondary>
-<section class=widget>
-<form id=search action=https://itachi.xyz/search/ method=get accept-charset=utf-8 target=_blank _lpchecked=1>
-<input type=text name=q maxlength=20 placeholder=Search>
+<a href=https://itachi.xyz/onenote/ title=一言>一言</a></nav></div></div></div></header><div id=body><div class=container><div class=col-group><div class=col-8 id=main><div class=res-cons><article class=post><header><h1 class=post-title>MIUI安装Magisk获取ROOT</h1></header><date class="post-meta meta-date">2022年1月1日</date><div class=post-meta><span>|</span>
+<span class=meta-category><a href=/categories/technology>Technology</a></span></div><div class=post-meta><span id=busuanzi_container_page_pv>|<span id=busuanzi_value_page_pv></span><span>
+阅读</span></span></div><div class=post-content><ol><li><h4 id=下载完整系统包>下载完整系统包</h4><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell><span style=display:flex><span>1. 系统更新界面右上角-下载最新完整包
+</span></span><span style=display:flex><span>2. 打开下载管理APP，看到正在下载系统更新包之后多任务切换回系统更新界面，点击界面下方的下载进度，选择取消下载。与此同时下载管理APP中的下载不受影响会继续下载
+</span></span><span style=display:flex><span>3. 等待下载完毕
+</span></span></code></pre></div></li><li><h4 id=解包获取bootimg文件>解包获取boot.img文件</h4><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell><span style=display:flex><span>1. 在【设置-我的设备-全部参数-MIUI版本】中狂点，直到弹出已处于开发者选项
+</span></span><span style=display:flex><span>2. 手机用USB链接电脑后，打开【设置-开发者选项-USB调试-信任该设备】
+</span></span><span style=display:flex><span>3. 电脑端打开文件管理器，找到手机所在盘符，打开目录【内部存储设备-Download-downloaded_rom】找到刚刚下载好的完整系统包，复制到电脑上可以找到的任意目录。包名类似于：<span style=color:#f92672>[</span>miui_XXXXXX_yy.mm.dd_5ace8ca1aa_12.0.zip<span style=color:#f92672>]</span>
+</span></span><span style=display:flex><span>4. 找到payload.bin解包神器<span style=color:#f92672>[</span>把ROM拖到我头上.exe<span style=color:#f92672>]</span>,把2.3中复制的包拖到它头上开始解包，解完包后会在包的同一级目录下生成<span style=color:#f92672>[</span>extracted_yyyyMMdd_HHmmss<span style=color:#f92672>]</span>目录，打开该目录即可看到boot.img文件
+</span></span><span style=display:flex><span>5. 复制该boot.img到手机目录【内部存储设备-Download】下
+</span></span></code></pre></div></li><li><h4 id=修补bootimg文件>修补boot.img文件</h4><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell><span style=display:flex><span>1. 手机端打开 Magisk APP，主页上半部分找到Magisk模块，点击右边的安装.
+</span></span><span style=display:flex><span>2. 选择【选择并修补一个文件-开始】在弹出的手机文件管理器找到2.5中复制的boot.img修补boot.img。
+</span></span><span style=display:flex><span>3. 修补完成后会在手机【内部存储设备-Download】下生成类似<span style=color:#f92672>[</span>magisk_patched-23000_Vpyyl.img<span style=color:#f92672>]</span>的文件。
+</span></span><span style=display:flex><span>4. 拷贝该magisk_patched文件到电脑的adb工具目录下
+</span></span></code></pre></div></li><li><h4 id=刷入临时root>刷入临时root</h4><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell><span style=display:flex><span>1. 在电脑端找到adb工具目录空白处，鼠标右键选择【在Windows终端打开】
+</span></span><span style=display:flex><span>2. 打开的Windows终端输入<span style=color:#e6db74>`</span>adb.exe<span style=color:#e6db74>`</span>回车看adb环境是否正常
+</span></span><span style=display:flex><span>3. Windows终端输入命令<span style=color:#e6db74>`</span>adb.exe reboot fastboot<span style=color:#e6db74>`</span>,若命令正确则手机会重启到fastboot界面<span style=color:#f92672>(</span>以前界面是米兔，现在是黑底红字FASTBOOT<span style=color:#f92672>)</span>
+</span></span><span style=display:flex><span>4. Windows终端接着输入命令<span style=color:#e6db74>`</span>fastboot.exe flash boot magisk_patched-23000_Vpyyl.img<span style=color:#e6db74>`</span> 刷入修补好的文件<span style=color:#f92672>(</span>以前可以直接<span style=color:#e6db74>`</span>fastboot.exe boot magisk_patched-23000_Vpyyl.img<span style=color:#e6db74>`</span> MIUI12.5的某个版本之后需要在boot之前加上flash<span style=color:#f92672>)</span>
+</span></span><span style=display:flex><span>5. 刷入修补文件之后如果手机没有自动重启，则在Windows终端输入命令 <span style=color:#e6db74>`</span>fastboot.exe reboot<span style=color:#e6db74>`</span>让手机重启
+</span></span></code></pre></div></li><li><h4 id=获取永久root>获取永久root</h4><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell><span style=display:flex><span>1. 手机端打开Magisk APP 主页找到Magisk模块，点击【安装-直接安装】刷入
+</span></span><span style=display:flex><span>2. 刷入后点击右下角的重启按钮重启手机
+</span></span><span style=display:flex><span>3. Enjoy it！
+</span></span></code></pre></div></li></ol><h4 id=附>附：</h4><p>[1] 手机需要先解BL锁<br>[2] 下载并安装合适版本的<a href=https://github.com/topjohnwu/Magisk/releases>Magisk</a><br>[3] 下载好ADB<a href=https://developer.android.com/studio/releases/platform-tools>工具包</a>和payload.bin<a href=https://www.daxiaamu.com/5795/>解包工具</a><br>[4] 此处的永久root是说当前版本的永久root，更新版本之后root就大概率无了，需要再次操作<br>[5] 理论上来说，不同机型或者不同版本的boot.img和magisk_patched*.img文件不通用，切忌混用<br>[6] 提前备份数据! 提前备份数据! 提前备份数据!</p><h4 id=参考>参考：</h4><p><a href=https://www.bilibili.com/read/cv6733630/>MIUI12安装Magisk获取ROOT</a></p></div><div class=post-archive><ul class=post-copyright><li><strong>原文作者：</strong><a rel=author href=https://itachi.xyz>阿林</a></li><li style=word-break:break-all><strong>原文链接：</strong><a href=https://itachi.xyz/post/miui-root.html>https://itachi.xyz/post/miui-root.html</a></li><li><strong>版权声明：</strong>本作品采用<a rel=license href=https://creativecommons.org/licenses/by-nc-nd/4.0/>知识共享署名-非商业性使用-禁止演绎 4.0 国际许可协议</a>进行许可，非商业转载请注明出处（作者，原文链接），商业转载请联系作者获得授权。</li></ul></div><br><div class=post-archive></div><div class="post-meta meta-tags"><ul class=clearfix><li><a href=/tags/%E6%90%9E%E6%9C%BA>搞机</a></li><li><a href=/tags/miui>MIUI</a></li></ul></div></article><div id=gitalk-container></div><link rel=stylesheet href=https://unpkg.com/gitalk/dist/gitalk.css><script src=https://unpkg.com/gitalk/dist/gitalk.min.js></script>
+<script>var gitalk=new Gitalk({id:decodeURI(window.location.pathname),clientID:"30ffb17e5ccaa5f1830e",clientSecret:"67ba9ccd9df5c8f402f46b2462f09d644219c04f",repo:"itachi1912.github.io",owner:"itachi1912",admin:["itachi1912"],labels:["gitment"],perPage:25});gitalk.render("gitalk-container")</script></div></div><div id=secondary><section class=widget><form id=search action=https://itachi.xyz/search/ method=get accept-charset=utf-8 target=_blank _lpchecked=1><input type=text name=q maxlength=20 placeholder=Search>
 <input type=hidden name=sitesearch value=https://itachi.xyz>
-<button type=submit class="submit icon-search"></button>
-</form>
-</section>
-<section class=widget>
-<h3 class=widget-title><a href=/categories/>分类</a></h3>
-<ul class=widget-list>
-<li><a href=https://itachi.xyz/categories/life/>Life (10)</a></li>
-<li><a href=https://itachi.xyz/categories/technology/>Technology (15)</a></li>
-<li><a href=https://itachi.xyz/categories/weekly/>Weekly (2)</a></li>
-</ul>
-</section>
-<section class=widget>
-<h3 class=widget-title>最近文章</h3>
-<ul class=widget-list>
-<li>
-<a href=https://itachi.xyz/post/miui-root.html title=MIUI安装Magisk获取ROOT>MIUI安装Magisk获取ROOT</a>
-</li>
-<li>
-<a href=https://itachi.xyz/post/talk-about-legend.html title="<张捷评联想>系列视频">&lt;张捷评联想>系列视频</a>
-</li>
-<li>
-<a href=https://itachi.xyz/post/peaceful-evolution.html title=张捷：从网约车谈田氏代齐式的和平演变>张捷：从网约车谈田氏代齐式的和平演变</a>
-</li>
-<li>
-<a href=https://itachi.xyz/post/ostep-04.html title=OSTEP-4(抽象：进程)>OSTEP-4(抽象：进程)</a>
-</li>
-<li>
-<a href=https://itachi.xyz/post/weekly-002.html title=生活周刊(第2期)：南京大屠杀幸存者黄刘氏去世>生活周刊(第2期)：南京大屠杀幸存者黄刘氏去世</a>
-</li>
-<li>
-<a href=https://itachi.xyz/post/weekly-001.html title=生活周刊(第1期)：缅怀先辈，铭记历史，吾辈自强！>生活周刊(第1期)：缅怀先辈，铭记历史，吾辈自强！</a>
-</li>
-<li>
-<a href=https://itachi.xyz/post/auto-update-geoip-site.html title=自动更新VV配置文件>自动更新VV配置文件</a>
-</li>
-<li>
-<a href=https://itachi.xyz/post/how-to-fight-boredom.html title=如何对抗无聊，培养属于自己的生活兴趣>如何对抗无聊，培养属于自己的生活兴趣</a>
-</li>
-<li>
-<a href=https://itachi.xyz/post/mount-aliyun-disk-to-local.html title=把阿里云盘挂载到本地使用>把阿里云盘挂载到本地使用</a>
-</li>
-<li>
-<a href=https://itachi.xyz/post/get-offer-01.html title=剑指offer计划>剑指offer计划</a>
-</li>
-</ul>
-</section>
-<section class=widget>
-<h3 class=widget-title>友情链接</h3>
-<ul class=widget-list>
-<li>
-<a target=_blank href=https://www.acdiao.com title=AC的简单博客>AC的简单博客</a>
-</li>
-<li>
-<a target=_blank href=https://img.tujidu.com title=AC大佬的图床>AC大佬的图床</a>
-</li>
-<li>
-<a target=_blank href=https://blog.cetcweb.cn/ title=记录实验过程>记录实验过程</a>
-</li>
-<li>
-<a target=_blank href=https://qitablog.com/ title=奇它博客>奇它博客</a>
-</li>
-<li>
-<a target=_blank href=http://laihongquan.com/ title=Ezio>Ezio</a>
-</li>
-<li>
-<a target=_blank href=https://luckly.work/ title=早起的年轻人>早起的年轻人</a>
-</li>
-<li>
-<a target=_blank href=https://geshanzsq.com title=格姗知识圈>格姗知识圈</a>
-</li>
-</ul>
-</section>
-<section class=widget>
-<h3 class=widget-title>其它</h3>
-<ul class=widget-list>
-<li><a href=https://itachi.xyz/index.xml>文章 RSS</a></li>
-</ul>
-</section>
-</div>
-</div>
-<footer id=footer>
-<div style=font-size:.7em>
-Powered by <a href=https://gohugo.io/ target=_black rel=nofollow>Hugo</a>
+<button type=submit class="submit icon-search"></button></form></section><section class=widget><h3 class=widget-title><a href=/categories/>分类</a></h3><ul class=widget-list><li><a href=https://itachi.xyz/categories/life/>Life (10)</a></li><li><a href=https://itachi.xyz/categories/technology/>Technology (15)</a></li><li><a href=https://itachi.xyz/categories/weekly/>Weekly (2)</a></li></ul></section><section class=widget><h3 class=widget-title>最近文章</h3><ul class=widget-list><li><a href=https://itachi.xyz/post/miui-root.html title=MIUI安装Magisk获取ROOT>MIUI安装Magisk获取ROOT</a></li><li><a href=https://itachi.xyz/post/talk-about-legend.html title="<张捷评联想>系列视频">&lt;张捷评联想>系列视频</a></li><li><a href=https://itachi.xyz/post/peaceful-evolution.html title=张捷：从网约车谈田氏代齐式的和平演变>张捷：从网约车谈田氏代齐式的和平演变</a></li><li><a href=https://itachi.xyz/post/ostep-04.html title=OSTEP-4(抽象：进程)>OSTEP-4(抽象：进程)</a></li><li><a href=https://itachi.xyz/post/weekly-002.html title=生活周刊(第2期)：南京大屠杀幸存者黄刘氏去世>生活周刊(第2期)：南京大屠杀幸存者黄刘氏去世</a></li><li><a href=https://itachi.xyz/post/weekly-001.html title=生活周刊(第1期)：缅怀先辈，铭记历史，吾辈自强！>生活周刊(第1期)：缅怀先辈，铭记历史，吾辈自强！</a></li><li><a href=https://itachi.xyz/post/auto-update-geoip-site.html title=自动更新VV配置文件>自动更新VV配置文件</a></li><li><a href=https://itachi.xyz/post/how-to-fight-boredom.html title=如何对抗无聊，培养属于自己的生活兴趣>如何对抗无聊，培养属于自己的生活兴趣</a></li><li><a href=https://itachi.xyz/post/mount-aliyun-disk-to-local.html title=把阿里云盘挂载到本地使用>把阿里云盘挂载到本地使用</a></li><li><a href=https://itachi.xyz/post/get-offer-01.html title=剑指offer计划>剑指offer计划</a></li></ul></section><section class=widget><h3 class=widget-title>友情链接</h3><ul class=widget-list><li><a target=_blank href=https://www.acdiao.com title=AC的简单博客>AC的简单博客</a></li><li><a target=_blank href=https://img.tujidu.com title=AC大佬的图床>AC大佬的图床</a></li><li><a target=_blank href=https://blog.cetcweb.cn/ title=记录实验过程>记录实验过程</a></li><li><a target=_blank href=https://qitablog.com/ title=奇它博客>奇它博客</a></li><li><a target=_blank href=http://laihongquan.com/ title=Ezio>Ezio</a></li><li><a target=_blank href=https://luckly.work/ title=早起的年轻人>早起的年轻人</a></li><li><a target=_blank href=https://geshanzsq.com title=格姗知识圈>格姗知识圈</a></li></ul></section><section class=widget><h3 class=widget-title>其它</h3><ul class=widget-list><li><a href=https://itachi.xyz/index.xml>文章 RSS</a></li></ul></section></div></div><footer id=footer><div style=font-size:.7em>Powered by <a href=https://gohugo.io/ target=_black rel=nofollow>Hugo</a>
 and
-Theme Based On <a href=https://www.flysnow.org/ target=_black>飞雪无情</a>
-</div>
-<br>
-<div style=font-size:.7em>
-&copy; 2022 Made with <span style=color:red>❤</span> By 阿林</a>
-</div>
-</footer>
-<script type=text/javascript>window.MathJax={tex2jax:{inlineMath:[['$','$']],processEscapes:!0}}</script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML" async></script>
+Theme Based On <a href=https://www.flysnow.org/ target=_black>飞雪无情</a></div><br><div style=font-size:.7em>&copy; 2022 Made with <span style=color:red>❤</span> By 阿林</a></div></footer><script type=text/javascript>window.MathJax={tex2jax:{inlineMath:[["$","$"]],processEscapes:!0}}</script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML" async></script>
 <a id=rocket href=#top></a>
 <script type=text/javascript src="/js/totop.js?v=0.0.0" async></script>
-<script type=text/javascript src=//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js async></script>
-</div>
-</div>
-</body>
-</html>
+<script type=text/javascript src=//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js async></script></div></div></body></html>
